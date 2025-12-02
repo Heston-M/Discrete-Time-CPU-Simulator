@@ -13,6 +13,7 @@
 */
 
 
+#include "generators/RandomGenerator.h"
 #include "generators/TimeGenerator.h"
 
 #include <iostream>
@@ -34,21 +35,6 @@ const bool CHOOSENUMCPUS = true;     // Prompt user to choose number of CPUs at 
 const int DEFAULTNUMCPUS = 1;         // Default number of CPUs if not choosing at runtime
 const bool CHOOSERQSETUP = true;      // Prompt user to choose Ready Queue setup at runtime
 const int DEFAULTRQSETUP = 2;        // Default Ready Queue setup if not choosing at runtime (2 = single global RQ)
-
-
-// ====================================================================
-// Structure to generate uniformly distributed random integers
-struct RandomGenerator {
-
-  RandomGenerator() {
-    srand(time(0));
-  }
-
-  // Generate a uniformly-random int in the range [0, maxIndex)
-  int getRandomIndex(int maxIndex) {
-    return (double(rand())) / (double(RAND_MAX + 1.0)) * maxIndex;
-  }
-};
 
 
 // ====================================================================
