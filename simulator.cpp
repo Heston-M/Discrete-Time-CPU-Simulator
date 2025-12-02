@@ -18,6 +18,7 @@
 #include "processes/Process.h"
 #include "processes/ReadyQueueList.h"
 #include "processes/CPUList.h"
+#include "statistics/StatisticsUnit.h"
 
 #include <iostream>
 #include <iomanip>
@@ -64,103 +65,6 @@ struct Event {
 Event *eventQHead;
 CPUList *cpuList;
 ReadyQueueList *RQList;
-
-
-// ====================================================================
-// Structure to track and calculate statistics about the simulation.
-// Tracks average turnaround time, throughput, utilization, and average
-//   number of processes in the Ready Queue. 
-struct StatisticsUnit {
-  float totalTurnTime;
-  float numProcessesDone;
-  vector<float> utilizationTimes;
-
-  // Variables used for calculating avgProcessesInQ
-  struct queueSample {
-    int numOfProcesses;
-    float sampleTime;
-    queueSample *next;
-  };
-  vector<queueSample *> sampleHeads;
-  float sampleTimeDiff;
-
-  // Constructor: initializes to default values and 
-  // sets sample time differential based on arrivalRate.
-  StatisticsUnit(float arrivalRate) {
-    totalTurnTime = 0.0;
-    numProcessesDone = 0.0;
-    utilizationTimes = vector<float>(cpuList->getNumCPUs(), 0.0);
-
-    sampleHeads = vector<queueSample *>(RQList->getNumRQs(), nullptr);
-    sampleTimeDiff = 0.5 / arrivalRate;
-  }
-
-  // Destructor: deletes dynamically-allocated memory for sample list
-  ~StatisticsUnit() {
-    for (int i = 0; i < sampleHeads.size(); i++) {
-      queueSample *p = sampleHeads[i];
-      while (p) {
-        sampleHeads[i] = sampleHeads[i]->next;
-        delete p;
-        p = sampleHeads[i];
-      }
-    }
-  }
-
-  // Account for a process that has finished at given time. 
-  void processDone(Process *process, float time) {
-    totalTurnTime += time - process->arrivalTime;
-    numProcessesDone++;
-    utilizationTimes[process->CPUindex] += process->serviceTime;
-  }
-
-  // Samples the Ready Queue at discrete time intervals up to the
-  // given time, which should be when the Ready Queue size was updated.
-  // Should be called on every update of the Ready Queue size.
-  void sampleRQueue(float time, int RQindex = 0) {
-    float lastSampleTime = sampleHeads[RQindex] ? sampleHeads[RQindex]->sampleTime : 0.0;
-    while (lastSampleTime < time) {
-      lastSampleTime += sampleTimeDiff;
-      queueSample *p = new queueSample;
-      p->numOfProcesses = RQList->getRQSize(RQindex);
-      p->next = sampleHeads[RQindex];
-      p->sampleTime = lastSampleTime;
-      sampleHeads[RQindex] = p;
-    }
-  }
-
-  // Get the average turnaround time for the system.
-  float getAvgTurnTime() {
-    return totalTurnTime / numProcessesDone;
-  }
-
-  // Get the throughput for the system up to time totalTime.
-  float getThroughput(float totalTime) {
-    return numProcessesDone / totalTime;
-  }
-
-  // Get the average utilization of the system up to time totalTime.
-  float getUtilization(float totalTime, int CPUindex = 0) {
-    return utilizationTimes[CPUindex] / totalTime;
-  }
-
-  // Get the average number of processes in the Ready Queue up to time totalTime. 
-  float getAvgProcessesInQ(float totalTime, int RQindex = 0) {
-    // Run sample to capture end of simulation data. Extraneous in some cases but doesn't hurt.
-    sampleRQueue(totalTime, RQindex); 
-
-    int n = 0;
-    float sum = 0;
-    queueSample *p = sampleHeads[RQindex];
-
-    while (p) {
-      sum += p->numOfProcesses;
-      n++;
-      p = p->next;
-    }
-    return n == 0 ? 0.0 : sum / n;
-  }
-};
 
 
 // ====================================================================
@@ -447,7 +351,7 @@ int main() {
   }
   RQList->setSchedulerType(schedulerType);
 
-  stats = new StatisticsUnit(arrivalLambda);
+  stats = new StatisticsUnit(arrivalLambda, cpuList, RQList);
 
   float clock = 0.0; // Current time tracker
 

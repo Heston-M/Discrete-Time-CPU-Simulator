@@ -1,8 +1,8 @@
 
 OBJDIR := objectFiles
 
-simulator: $(OBJDIR) objectFiles/simulator.o objectFiles/RandomGenerator.o objectFiles/TimeGenerator.o objectFiles/Process.o objectFiles/ReadyQueueList.o objectFiles/CPUList.o
-	g++ -o simulator objectFiles/simulator.o objectFiles/RandomGenerator.o objectFiles/TimeGenerator.o objectFiles/Process.o objectFiles/ReadyQueueList.o objectFiles/CPUList.o
+simulator: $(OBJDIR) objectFiles/simulator.o objectFiles/RandomGenerator.o objectFiles/TimeGenerator.o objectFiles/Process.o objectFiles/ReadyQueueList.o objectFiles/CPUList.o objectFiles/StatisticsUnit.o
+	g++ -o simulator objectFiles/simulator.o objectFiles/RandomGenerator.o objectFiles/TimeGenerator.o objectFiles/Process.o objectFiles/ReadyQueueList.o objectFiles/CPUList.o objectFiles/StatisticsUnit.o
 
 $(OBJDIR):
 ifeq ($(OS),Windows_NT)
@@ -28,6 +28,9 @@ objectFiles/ReadyQueueList.o: | $(OBJDIR) processes/ReadyQueueList.cpp processes
 
 objectFiles/CPUList.o: | $(OBJDIR) processes/CPUList.cpp processes/CPUList.h
 	g++ -c processes/CPUList.cpp -o objectFiles/CPUList.o
+
+objectFiles/StatisticsUnit.o: | $(OBJDIR) statistics/StatisticsUnit.cpp statistics/StatisticsUnit.h
+	g++ -c statistics/StatisticsUnit.cpp -o objectFiles/StatisticsUnit.o
 
 clean:
 	rm -f simulator objectFiles/*.o
