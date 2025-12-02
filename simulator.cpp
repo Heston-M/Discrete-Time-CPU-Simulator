@@ -17,6 +17,7 @@
 #include "generators/TimeGenerator.h"
 #include "processes/Process.h"
 #include "processes/ReadyQueueList.h"
+#include "processes/CPUList.h"
 
 #include <iostream>
 #include <iomanip>
@@ -55,60 +56,6 @@ struct Event {
   EventType type;
   Process *process;
   Event *next;
-};
-
-
-// ====================================================================
-// CPU List structure 
-struct CPUList {
-  vector<Process *> CPUs;
-
-  CPUList (int numCPUs = 1) {
-    for (int i = 0; i < numCPUs; i++) {
-      CPUs.push_back(nullptr);
-    }
-  }
-
-  ~CPUList() {
-    for (int i = 0; i < CPUs.size(); i++) {
-      if (CPUs[i]) {
-        delete CPUs[i];
-      }
-    }
-  }
-
-  int getNumCPUs() {
-    return CPUs.size();
-  }
-
-  bool isCPUIdle(int cpuIndex = 0) {
-    return CPUs[cpuIndex] == nullptr;
-  }
-
-  vector<int> getIdleCPUs() {
-    vector<int> idleCPUs;
-    for (int i = 0; i < CPUs.size(); i++) {
-      if (CPUs[i] == nullptr) {
-        idleCPUs.push_back(i);
-      }
-    }
-    return idleCPUs;
-  }
-
-  void assignProcessToCPU(Process *process, int cpuIndex = 0) {
-    CPUs[cpuIndex] = process;
-    if (process) process->CPUindex = cpuIndex;
-  }
-
-  Process* getProcessOnCPU(int cpuIndex = 0) {
-    return CPUs[cpuIndex];
-  }
-
-  Process* removeProcessFromCPU(int cpuIndex = 0) {
-    Process *p = CPUs[cpuIndex];
-    CPUs[cpuIndex] = nullptr;
-    return p;
-  }
 };
 
 
