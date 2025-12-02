@@ -1,8 +1,8 @@
 
 OBJDIR := objectFiles
 
-simulator: $(OBJDIR) objectFiles/simulator.o objectFiles/RandomGenerator.o objectFiles/TimeGenerator.o
-	g++ -o simulator objectFiles/simulator.o objectFiles/RandomGenerator.o objectFiles/TimeGenerator.o
+simulator: $(OBJDIR) objectFiles/simulator.o objectFiles/RandomGenerator.o objectFiles/TimeGenerator.o objectFiles/Process.o
+	g++ -o simulator objectFiles/simulator.o objectFiles/RandomGenerator.o objectFiles/TimeGenerator.o objectFiles/Process.o
 
 $(OBJDIR):
 ifeq ($(OS),Windows_NT)
@@ -19,6 +19,9 @@ objectFiles/RandomGenerator.o: | $(OBJDIR) generators/RandomGenerator.cpp genera
 
 objectFiles/TimeGenerator.o: | $(OBJDIR) generators/TimeGenerator.cpp generators/TimeGenerator.h
 	g++ -c generators/TimeGenerator.cpp -o objectFiles/TimeGenerator.o
+
+objectFiles/Process.o: | $(OBJDIR) processes/Process.cpp processes/Process.h
+	g++ -c processes/Process.cpp -o objectFiles/Process.o
 
 clean:
 	rm -f simulator objectFiles/*.o

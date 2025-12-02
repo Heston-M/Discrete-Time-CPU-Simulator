@@ -15,6 +15,7 @@
 
 #include "generators/RandomGenerator.h"
 #include "generators/TimeGenerator.h"
+#include "processes/Process.h"
 
 #include <iostream>
 #include <iomanip>
@@ -38,30 +39,7 @@ const int DEFAULTRQSETUP = 2;        // Default Ready Queue setup if not choosin
 // GLOBAL VARIABLES Pt. 1
 RandomGenerator *randGen;
 TimeGenerator *timeGen;
-int nextID;
 int schedulerType = 0; // 0 = FCFS, 1 = SJF
-
-
-// ====================================================================
-// Process structure
-struct Process {
-  int id;
-  float serviceTime;
-  float arrivalTime;
-  float departureTime;
-  int CPUindex;
-  Process *next;
-
-  Process(float t) {
-    id = nextID;
-    serviceTime = timeGen->getServiceTime();
-    arrivalTime = t;
-    departureTime = 0;
-    next = nullptr;
-
-    nextID++;
-  }
-};
 
 
 // ====================================================================
@@ -607,7 +585,6 @@ int main() {
 
   // Initialize time generation with lambdas
   timeGen = new TimeGenerator(arrivalLambda, serviceTimeAvg);
-  nextID = 1;
 
   eventQHead = nullptr;
 
@@ -623,7 +600,9 @@ int main() {
 
   float clock = 0.0; // Current time tracker
 
-  scheduleEvent(ARRIVAL, clock + timeGen->getInterArrivalTime(), new Process(clock));
+  Process *firstProcess = new Process(clock);
+  firstProcess->setTimeGen(timeGen);
+  scheduleEvent(ARRIVAL, clock + timeGen->getInterArrivalTime(), firstProcess);
 
   cout << "\n\nInitialization Complete\n";
 
