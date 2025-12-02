@@ -1,0 +1,4 @@
+objectFiles/
+*.o
+*.exe
+*.out
