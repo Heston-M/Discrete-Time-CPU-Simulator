@@ -3,6 +3,11 @@ Creator: Heston Montagne
 
 This C++ program simulates an Multi-CPU queuing system representing CPU scheduling based on a First-Come First-Served (FCFS) algorithm or a Shortest Job First (SJF) algorithm. 
 
+## Table of Contents
+ 1. [Setup Instructions](#setup-instructions)
+ 2. [Input Parameters](#input-parameters)
+ 3. [Output](#output)
+
 ## Setup Instructions
 ### Pre-compiled Executable
 Included with the program is a pre-compiled version of the program simulator.exe. To run this file, navigate to the HM_Homework_4 directory and run the following command. 
@@ -59,7 +64,7 @@ With default configuration, the simulator takes 4 arguments (entered in the comm
 
 **Number of CPUs** - integer - The number of CPUs to use in the simulation.
 
-## Output & Report
+## Output
 ### Metrics
 The simulator calculates 4 metrics for the simulated system:
 * Average Turnaround Time - The average time between a process's arrival to the system and its departure.
@@ -69,3 +74,12 @@ The simulator calculates 4 metrics for the simulated system:
 
 ### Terminal Output
 The simulator displays its results to the terminal. It displays markers when stages of the simulator program (initialization, simulation, statistics, and cleanup) have completed. The simulator outputs 4 metrics for the simulated system. These metrics are stated in the Metrics section.
+
+## Project Status
+This project is currently *in-progress*. The current development is focusing on separating out code to follow OOP principles more closely. 
+
+### Planned Additions/Changes
+* Add preemption of processes (interrupting their execution partially through running)
+* Add more scheduler types (e.g. Round Robin)
+* Introduce a GUI for inputing the parameters of the simulator and viewing the output metrics. 
+  * Qt is the current forerunner for which framework to use.
