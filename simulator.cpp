@@ -13,6 +13,8 @@
 */
 
 
+#include "generators/TimeGenerator.h"
+
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
@@ -45,49 +47,6 @@ struct RandomGenerator {
   // Generate a uniformly-random int in the range [0, maxIndex)
   int getRandomIndex(int maxIndex) {
     return (double(rand())) / (double(RAND_MAX + 1.0)) * maxIndex;
-  }
-};
-
-
-// ====================================================================
-// Structure to generate exponentially distributed times
-// Used for service times and inter-arrival times
-struct TimeGenerator {
-  float arrivalLambda;
-  float serviceTimeAvg;
-
-  TimeGenerator(float aLamb, float sTimeAvg) {
-    arrivalLambda = aLamb;
-    serviceTimeAvg = sTimeAvg;
-
-    // Seed random number generator
-    srand(time(0));
-  }
-
-  float getInterArrivalTime() {
-    if (!arrivalLambda) {
-      throw runtime_error("Error: Average Arrival Rate not set.");
-    }
-    float p = double(rand() + 1.0) / double(RAND_MAX + 1.0);
-    float x = -log(p) / arrivalLambda;
-
-    if (isinf(x)) throw runtime_error("Error: interarrival time is infinite.");
-    if (isnan(x)) throw runtime_error("Error: interarrival time is NaN.");
-
-    return x;
-  }
-
-  float getServiceTime() {
-    if (!serviceTimeAvg) {
-      throw runtime_error("Error: Average Service Time not set.");
-    }
-    float p = ((double)rand() + 1.0) / double(RAND_MAX + 1.0);
-    float x = -log(p) * serviceTimeAvg;
-
-    if (isinf(x)) throw runtime_error("Error: service time is infinite.");
-    if (isnan(x)) throw runtime_error("Error: service time is NaN.");
-
-    return x;
   }
 };
 
