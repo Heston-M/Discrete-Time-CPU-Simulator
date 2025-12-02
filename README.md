@@ -10,14 +10,14 @@ This C++ program simulates an Multi-CPU queuing system representing CPU scheduli
 
 ## Setup Instructions
 ### Pre-compiled Executable
-Included with the program is a pre-compiled version of the program simulator.exe. To run this file, navigate to the HM_Homework_4 directory and run the following command. 
+Included with the program is a pre-compiled version of the program simulator.exe. To run this file, navigate to the root directory and run the following command. 
 ~~~
 ./simulator.exe
 ~~~
 *Note: may not work on linux.*
 
 ### Compile and Run
-To compile and run the source code (C++), navigate to the HM_Homework_5 directory and run the following commands.
+To compile and run the source code (C++), navigate to the root directory and run the following commands.
 ~~~
 g++ simulator.cpp
 ./a.exe
