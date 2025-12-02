@@ -26,6 +26,7 @@
 
 using namespace std;
 
+
 // ====================================================================
 // PROGRAM CONFIG VARIABLES
 const bool PRINT_LIVE_UPDATES = false;  // Print live event updates to console (slows performance)
@@ -36,13 +37,6 @@ const bool CHOOSENUMCPUS = true;     // Prompt user to choose number of CPUs at 
 const int DEFAULTNUMCPUS = 1;         // Default number of CPUs if not choosing at runtime
 const bool CHOOSERQSETUP = true;      // Prompt user to choose Ready Queue setup at runtime
 const int DEFAULTRQSETUP = 2;        // Default Ready Queue setup if not choosing at runtime (2 = single global RQ)
-
-
-// ====================================================================
-// GLOBAL VARIABLES Pt. 1
-RandomGenerator *randGen;
-TimeGenerator *timeGen;
-int schedulerType = 0; // 0 = FCFS, 1 = SJF
 
 
 // ====================================================================
@@ -61,15 +55,16 @@ struct Event {
 
 
 // ====================================================================
-// GLOBAL VARIABLES Pt. 2
+// GLOBAL VARIABLES
+int schedulerType = 0; // 0 = FCFS, 1 = SJF
 Event *eventQHead;
+
+RandomGenerator *randGen;
+TimeGenerator *timeGen;
+StatisticsUnit *stats;
+
 CPUList *cpuList;
 ReadyQueueList *RQList;
-
-
-// ====================================================================
-// GLOBAL VARIABLES Pt. 3
-StatisticsUnit *stats;
 
 
 // ====================================================================
@@ -96,36 +91,6 @@ void scheduleEvent(EventType type, float t, Process *process) {
     p->next = event;
   }
 }
-
-
-// Insert process into the Ready Queue based on FCFS or SJF
-// void insertReadyQ(Process *process) {
-//   if (schedulerType == 0) {              // FCFS
-//     if (readyQHead == nullptr) {
-//       readyQHead = process;
-//       readyQTail = process;
-//     } 
-//     else {
-//       readyQTail->next = process;
-//       readyQTail = process;
-//     }
-//   }
-//   else {                                 // SJF
-//     if (!readyQHead || process->serviceTime < readyQHead->serviceTime) {
-//       process->next = readyQHead;
-//       readyQHead = process;
-//     }
-//     else {
-//       Process *p = readyQHead;
-//       while (p->next && p->next->serviceTime < process->serviceTime) {
-//         p = p->next;
-//       }
-//       process->next = p->next;
-//       p->next = process;
-//     }
-//   }
-//   readyQSize++;
-// }
 
 
 // ====================================================================
@@ -166,66 +131,6 @@ void handleArrival(Event *e, float clock) {
       else cout << "CPU " << CPUindex << " was busy, so the process was added to Ready Queue " << RQindex << " (" << RQsize << "). ";
     }
   }
-
-
-
-  // if (RQList->getNumRQs() == 1) {   // Single Ready Queue setup
-  //   if (RQList->isRQEmpty(0)) {     // Ready Queue is empty
-  //     vector<int> idleCPUs = cpuList->getIdleCPUs();
-  //     if (idleCPUs.size() == 0) {   // No CPU is idle, add to Ready Queue
-  //       RQList->insertProcessRQ(0, e->process);
-  //       stats->sampleRQueue(clock);                                                 // SAMPLE READY QUEUE WILL NEED TO BE MODIFIED FOR MULTIPLE RQS
-  //       if (PRINT_LIVE_UPDATES) cout << "No CPU was idle, so the process was added to Ready Queue. ";
-  //     }
-  //     else {                        // At least one CPU is idle, assign to one
-  //       int CPUindex = idleCPUs[randGen->getRandomIndex(idleCPUs.size())];  // Pick random idle CPU
-  //       cpuList->assignProcessToCPU(CPUindex, e->process);
-  //       scheduleEvent(DEPARTURE, clock + e->process->serviceTime, e->process);
-  //       if (PRINT_LIVE_UPDATES) cout << "CPU " << CPUindex << " was idle, so process " << e->process->id 
-  //         << " (" << e->process->serviceTime << ") started running on CPU" << CPUindex << ". ";
-  //     }
-  //   }
-  //   else {                          // Ready Queue is not empty, add to it
-  //     RQList->insertProcessRQ(0, e->process);
-  //     stats->sampleRQueue(clock);
-  //     if (PRINT_LIVE_UPDATES) cout << "Ready Queue was not empty, so the process was added to Ready Queue. ";
-  //   }
-  // } 
-  // else {                            // Per-CPU Ready Queue setup
-  //   int CPUindex = randGen->getRandomIndex(cpuList->getNumCPUs());  // Pick random CPU
-  //   if (cpuList->isCPUIdle(CPUindex)) {         // Chosen CPU is idle
-  //     cpuList->assignProcessToCPU(CPUindex, e->process);
-  //     scheduleEvent(DEPARTURE, clock + e->process->serviceTime, e->process);
-  //     if (PRINT_LIVE_UPDATES) cout << "CPU " << CPUindex << " was idle, so process " << e->process->id 
-  //       << " (" << e->process->serviceTime << ") started running on CPU" << CPUindex << ". ";
-  //   }
-  //   else {                                      // Chosen CPU is busy, add to its Ready Queue
-  //     RQList->insertProcessRQ(CPUindex, e->process);
-  //     stats->sampleRQueue(clock);
-  //     if (PRINT_LIVE_UPDATES) cout << "CPU " << CPUindex << " was busy, so the process was added to Ready Queue " << CPUindex << ". ";
-  //   }
-  // }
-
-
-  // if (CPU) {  
-  //   insertReadyQ(e->process);    // CPU is busy, add to Ready Queue
-  //   stats->sampleRQueue(clock);
-  //   if (PRINT_LIVE_UPDATES) cout << "CPU was busy, so the process was added to Ready Queue. ";
-  // }
-  // else {
-  //   if (schedulerType == 0 || !readyQHead || e->process->serviceTime < readyQHead->serviceTime) {
-  //     CPU = e->process;       // New process goes to CPU
-  //   }
-  //   else {
-  //     insertReadyQ(e->process);
-  //     CPU = readyQHead;
-  //     readyQHead->next;
-  //     readyQSize--;
-  //   }
-  //   scheduleEvent(DEPARTURE, clock + CPU->serviceTime, CPU);
-  //   if (PRINT_LIVE_UPDATES) cout << "CPU was idle, so process " << CPU->id 
-  //     << " (" << CPU->serviceTime << ") started running on CPU. ";
-  // }
 }
 
 
@@ -260,21 +165,6 @@ void handleDeparture(Event *e, float clock) {
     if (PRINT_LIVE_UPDATES) cout << "Process " << nextProcess->id 
       << " (" << nextProcess->serviceTime << ") moving to CPU " << CPUindex << ". ";
   }
-
-
-  // if (readyQHead) {
-  //   CPU = readyQHead;          // Ready Queue is populated
-  //   readyQHead = readyQHead->next;
-  //   readyQSize--;
-  //   stats->sampleRQueue(clock);
-  //   scheduleEvent(DEPARTURE, clock + CPU->serviceTime, CPU);
-  //   if (PRINT_LIVE_UPDATES) cout << "Process " << CPU->id 
-  //     << " (" << CPU->serviceTime << ") moving to CPU. ";
-  // }
-  // else {
-  //   CPU = nullptr;             // Ready Queue is empty
-  //   if (PRINT_LIVE_UPDATES) cout << "CPU is now idle. ";
-  // }
 
   delete e->process;
 }
