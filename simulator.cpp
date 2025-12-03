@@ -161,6 +161,11 @@ void handleDeparture(Event *e, float clock) {
 // ====================================================================
 int main() {
 
+  cout << "\n========================================";
+  cout << "\n     DISCRETE TIME EVENT SIMULATOR      ";
+  cout << "\n          - Heston Montagne -           ";
+  cout << "\n========================================\n\n";
+
   // ======================
   // INITIALIZATION
   // ======================
@@ -171,11 +176,6 @@ int main() {
   int numCPUs;
   int rqSetup;
 
-  cout << "\n========================================";
-  cout << "\n     DISCRETE TIME EVENT SIMULATOR      ";
-  cout << "\n          - Heston Montagne -           ";
-  cout << "\n========================================\n\n";
-
   InputHandler inputHandler;
   inputHandler.handleInput();
 
@@ -184,8 +184,6 @@ int main() {
   schedulerType = inputHandler.getSchedulerType();
   rqSetup = inputHandler.getRQSetup();
   numCPUs = inputHandler.getNumCPUs();
-
-  cout << "========================================";
 
   if (arrivalLambda <= 0 || serviceTimeAvg <= 0 || !(schedulerType == 0 || schedulerType == 1) || numCPUs <= 0 || !(rqSetup == 1 || rqSetup == 2)) {
     throw runtime_error("Invalid arguments.");
@@ -211,6 +209,7 @@ int main() {
   firstProcess->setTimeGen(timeGen);
   scheduleEvent(ARRIVAL, clock + timeGen->getInterArrivalTime(), firstProcess);
 
+  cout << "========================================";
   cout << "\n\nInitialization Complete\n";
   cout << "\n========================================\n";
 
