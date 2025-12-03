@@ -1,8 +1,8 @@
 
 OBJDIR := objectFiles
 
-simulator: $(OBJDIR) objectFiles/simulator.o objectFiles/RandomGenerator.o objectFiles/TimeGenerator.o objectFiles/Process.o objectFiles/ReadyQueueList.o objectFiles/CPUList.o objectFiles/StatisticsUnit.o
-	g++ -o simulator objectFiles/simulator.o objectFiles/RandomGenerator.o objectFiles/TimeGenerator.o objectFiles/Process.o objectFiles/ReadyQueueList.o objectFiles/CPUList.o objectFiles/StatisticsUnit.o
+simulator: $(OBJDIR) objectFiles/simulator.o objectFiles/RandomGenerator.o objectFiles/TimeGenerator.o objectFiles/Process.o objectFiles/ReadyQueueList.o objectFiles/CPUList.o objectFiles/StatisticsUnit.o objectFiles/InputHandler.o
+	g++ -o simulator objectFiles/simulator.o objectFiles/RandomGenerator.o objectFiles/TimeGenerator.o objectFiles/Process.o objectFiles/ReadyQueueList.o objectFiles/CPUList.o objectFiles/StatisticsUnit.o objectFiles/InputHandler.o
 
 $(OBJDIR):
 ifeq ($(OS),Windows_NT)
@@ -32,6 +32,15 @@ objectFiles/CPUList.o: | $(OBJDIR) processes/CPUList.cpp processes/CPUList.h
 objectFiles/StatisticsUnit.o: | $(OBJDIR) statistics/StatisticsUnit.cpp statistics/StatisticsUnit.h
 	g++ -c statistics/StatisticsUnit.cpp -o objectFiles/StatisticsUnit.o
 
+objectFiles/InputHandler.o: | $(OBJDIR) input/InputHandler.cpp input/InputHandler.h
+	g++ -c input/InputHandler.cpp -o objectFiles/InputHandler.o
+
 clean:
+ifeq ($(OS),Windows_NT)
+	-@if exist simulator.exe del /q simulator.exe
+	-@if exist simulator del /q simulator
+	-@if exist objectFiles\*.o del /q objectFiles\*.o
+else
 	rm -f simulator objectFiles/*.o
+endif
 
