@@ -15,6 +15,7 @@
 
 #include "generators/RandomGenerator.h"
 #include "generators/TimeGenerator.h"
+#include "input/InputHandler.h"
 #include "processes/Process.h"
 #include "processes/ReadyQueueList.h"
 #include "processes/CPUList.h"
@@ -175,29 +176,15 @@ int main() {
   cout << "\n          - Heston Montagne -           ";
   cout << "\n========================================\n";
 
-  cout << "\nEnter the average arrival rate (processes per second): ";
-  cin >> arrivalLambda;
+  InputHandler inputHandler;
+  inputHandler.handleInput();
 
-  cout << "\nEnter the average service time (seconds): ";
-  cin >> serviceTimeAvg;
+  arrivalLambda = inputHandler.getArrivalLambda();
+  serviceTimeAvg = inputHandler.getServiceTimeAvg();
+  schedulerType = inputHandler.getSchedulerType();
+  rqSetup = inputHandler.getRQSetup();
+  numCPUs = inputHandler.getNumCPUs();
 
-  if (CHOOSESCHEDULER) {
-    cout << "\nPick the scheduler (0 for FCFS, 1 for SJF): ";
-    cin >> schedulerType;
-  } else {
-    schedulerType = DEFAULTSCHEDULER;
-  }
-
-  if (CHOOSERQSETUP) {
-    cout << "\nPick the Ready Queue setup (1 for RQ per-CPU, 2 for single global RQ): ";
-    cin >> rqSetup;
-  } else {
-    rqSetup = DEFAULTRQSETUP;
-  }
-
-  if (CHOOSENUMCPUS) {
-    cout << "\nEnter the number of CPUs: ";
-    cin >> numCPUs;
   } else {
     numCPUs = DEFAULTNUMCPUS;
   }
