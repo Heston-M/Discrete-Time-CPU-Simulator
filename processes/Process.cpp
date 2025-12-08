@@ -1,12 +1,11 @@
 #include "Process.h"
 
 int Process::nextID = 0;
-TimeGenerator *Process::timeGen = nullptr;
 
-Process::Process(float t) {
+Process::Process(float serviceT, float arrivalT) {
   id = nextID;
-  serviceTime = timeGen->getServiceTime();
-  arrivalTime = t;
+  serviceTime = serviceT;
+  arrivalTime = arrivalT;
   departureTime = 0;
   next = nullptr;
 

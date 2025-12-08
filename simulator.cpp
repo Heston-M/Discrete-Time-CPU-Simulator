@@ -87,7 +87,7 @@ void scheduleEvent(EventType type, float t, Process *process) {
 // Assigns e's process to the CPU (if idle), or inserts it into the Ready Queue.
 void handleArrival(Event *e, float clock) {
   float nextArrivalTime = clock + timeGen->getInterArrivalTime();
-  scheduleEvent(ARRIVAL, nextArrivalTime, new Process(nextArrivalTime)); // Next arrival
+  scheduleEvent(ARRIVAL, nextArrivalTime, new Process(timeGen->getServiceTime(), nextArrivalTime)); // Next arrival
 
   if (PRINT_LIVE_UPDATES) cout << "Process " << e->process->id << " arrived. ";
 
@@ -205,9 +205,8 @@ int main() {
   float clock = 0.0; // Current time tracker
 
   // Create first process
-  Process *firstProcess = new Process(clock);
-  firstProcess->setTimeGen(timeGen);
-  scheduleEvent(ARRIVAL, clock + timeGen->getInterArrivalTime(), firstProcess);
+  Process *firstProcess = new Process(timeGen->getServiceTime(), clock);
+  scheduleEvent(ARRIVAL, firstProcess->arrivalTime, firstProcess);
 
   cout << "========================================";
   cout << "\n\nInitialization Complete\n";

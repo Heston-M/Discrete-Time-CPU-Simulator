@@ -1,15 +1,12 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
-#include "../generators/TimeGenerator.h"
-
 // ====================================================================
 // Process structure
 class Process {
 
   private:
     static int nextID;
-    static TimeGenerator *timeGen;
 
   public:
     int id;
@@ -19,11 +16,7 @@ class Process {
     int CPUindex;
     Process *next;
   
-    Process(float);
-
-    void setTimeGen(TimeGenerator *tg) {
-      timeGen = tg;
-    }
+    Process(float, float);
   };
 
 #endif // PROCESS_H
