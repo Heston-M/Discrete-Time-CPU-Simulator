@@ -15,29 +15,17 @@
 
 #include "generators/RandomGenerator.h"
 #include "generators/TimeGenerator.h"
+#include "input/InputHandler.h"
 #include "processes/Process.h"
 #include "processes/ReadyQueueList.h"
 #include "processes/CPUList.h"
 #include "statistics/StatisticsUnit.h"
-
+#include "config.h"
 #include <iostream>
 #include <iomanip>
 #include <vector>
 
 using namespace std;
-
-
-// ====================================================================
-// PROGRAM CONFIG VARIABLES
-const bool PRINT_LIVE_UPDATES = false;  // Print live event updates to console (slows performance)
-const int N = 10000;                    // Simulation halts after N processes depart
-const bool CHOOSESCHEDULER = false;    // Prompt user to choose scheduler at runtime
-const int DEFAULTSCHEDULER = 0;        // Default scheduler if not choosing at runtime (0 = FCFS, 1 = SJF)
-const bool CHOOSENUMCPUS = true;     // Prompt user to choose number of CPUs at runtime
-const int DEFAULTNUMCPUS = 1;         // Default number of CPUs if not choosing at runtime
-const bool CHOOSERQSETUP = true;      // Prompt user to choose Ready Queue setup at runtime
-const int DEFAULTRQSETUP = 2;        // Default Ready Queue setup if not choosing at runtime (2 = single global RQ)
-
 
 // ====================================================================
 // Event structures
@@ -57,14 +45,14 @@ struct Event {
 // ====================================================================
 // GLOBAL VARIABLES
 int schedulerType = 0; // 0 = FCFS, 1 = SJF
-Event *eventQHead;
+Event *eventQHead = nullptr;
 
-RandomGenerator *randGen;
-TimeGenerator *timeGen;
-StatisticsUnit *stats;
+RandomGenerator *randGen = nullptr;
+TimeGenerator *timeGen = nullptr;
+StatisticsUnit *stats = nullptr;
 
-CPUList *cpuList;
-ReadyQueueList *RQList;
+CPUList *cpuList = nullptr;
+ReadyQueueList *RQList = nullptr;
 
 
 // ====================================================================
@@ -173,6 +161,11 @@ void handleDeparture(Event *e, float clock) {
 // ====================================================================
 int main() {
 
+  cout << "\n========================================";
+  cout << "\n     DISCRETE TIME EVENT SIMULATOR      ";
+  cout << "\n          - Heston Montagne -           ";
+  cout << "\n========================================\n\n";
+
   // ======================
   // INITIALIZATION
   // ======================
@@ -183,73 +176,42 @@ int main() {
   int numCPUs;
   int rqSetup;
 
-  cout << "\n========================================";
-  cout << "\n     DISCRETE TIME EVENT SIMULATOR      ";
-  cout << "\n          - Heston Montagne -           ";
-  cout << "\n========================================\n";
+  InputHandler inputHandler;
+  inputHandler.handleInput();
 
-  cout << "\nEnter the average arrival rate (processes per second): ";
-  cin >> arrivalLambda;
-
-  cout << "\nEnter the average service time (seconds): ";
-  cin >> serviceTimeAvg;
-
-  if (CHOOSESCHEDULER) {
-    cout << "\nPick the scheduler (0 for FCFS, 1 for SJF): ";
-    cin >> schedulerType;
-  } else {
-    schedulerType = DEFAULTSCHEDULER;
-  }
-
-  if (CHOOSERQSETUP) {
-    cout << "\nPick the Ready Queue setup (1 for RQ per-CPU, 2 for single global RQ): ";
-    cin >> rqSetup;
-  } else {
-    rqSetup = DEFAULTRQSETUP;
-  }
-
-  if (CHOOSENUMCPUS) {
-    cout << "\nEnter the number of CPUs: ";
-    cin >> numCPUs;
-  } else {
-    numCPUs = DEFAULTNUMCPUS;
-  }
-
-  cout << "\n========================================";
+  arrivalLambda = inputHandler.getArrivalLambda();
+  serviceTimeAvg = inputHandler.getServiceTimeAvg();
+  schedulerType = inputHandler.getSchedulerType();
+  rqSetup = inputHandler.getRQSetup();
+  numCPUs = inputHandler.getNumCPUs();
 
   if (arrivalLambda <= 0 || serviceTimeAvg <= 0 || !(schedulerType == 0 || schedulerType == 1) || numCPUs <= 0 || !(rqSetup == 1 || rqSetup == 2)) {
     throw runtime_error("Invalid arguments.");
   }
 
-  if (rqSetup == 1) {
-    randGen = new RandomGenerator();
-  } else {
-    randGen = nullptr;
-  }
+  if (rqSetup == 1) randGen = new RandomGenerator();
+  else randGen = nullptr;
 
-  // Initialize time generation with lambdas
   timeGen = new TimeGenerator(arrivalLambda, serviceTimeAvg);
 
-  eventQHead = nullptr;
-
-  // CPU = nullptr;
   cpuList = new CPUList(numCPUs);
-  if (rqSetup == 2) {
-    RQList = new ReadyQueueList(1);
-  } else {
-    RQList = new ReadyQueueList(numCPUs);
-  }
+
+  if (rqSetup == 2) RQList = new ReadyQueueList(1);
+  else RQList = new ReadyQueueList(numCPUs);
   RQList->setSchedulerType(schedulerType);
 
   stats = new StatisticsUnit(arrivalLambda, cpuList, RQList);
 
   float clock = 0.0; // Current time tracker
 
+  // Create first process
   Process *firstProcess = new Process(clock);
   firstProcess->setTimeGen(timeGen);
   scheduleEvent(ARRIVAL, clock + timeGen->getInterArrivalTime(), firstProcess);
 
+  cout << "========================================";
   cout << "\n\nInitialization Complete\n";
+  cout << "\n========================================\n";
 
   // ======================
   // SIMULATION
@@ -315,6 +277,7 @@ int main() {
   cout << "\n========================================\n";
 
   cout << "\nStatistics Complete\n\n";
+  cout << "========================================\n\n";
 
   // ======================
   // CLEANUP
