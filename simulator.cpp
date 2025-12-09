@@ -183,23 +183,18 @@ int main() {
   rqSetup = InputHandler::getRQSetup();
   numCPUs = InputHandler::getNumCPUs();
 
+  EndChecker endChecker;
+
   if (arrivalLambda <= 0 || serviceTimeAvg <= 0 || !(schedulerType == 0 || schedulerType == 1) || numCPUs <= 0 || !(rqSetup == 1 || rqSetup == 2)) {
     throw runtime_error("Invalid arguments.");
   }
 
-  if (rqSetup == 1) randGen = new RandomGenerator();
-  else randGen = nullptr;
+  int numRQs = rqSetup == 2 ? 1 : numCPUs;
 
+  randGen = new RandomGenerator();
   timeGen = new TimeGenerator(arrivalLambda, serviceTimeAvg);
-
   cpuList = new CPUList(numCPUs);
-
-  EndChecker endChecker;
-
-  if (rqSetup == 2) RQList = new ReadyQueueList(1);
-  else RQList = new ReadyQueueList(numCPUs);
-  RQList->setSchedulerType(schedulerType);
-
+  RQList = new ReadyQueueList(numRQs, schedulerType);
   stats = new StatisticsUnit(arrivalLambda, cpuList, RQList);
 
   float clock = 0.0; // Current time tracker

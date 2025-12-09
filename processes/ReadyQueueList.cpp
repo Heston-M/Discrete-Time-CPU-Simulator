@@ -1,8 +1,6 @@
 #include "ReadyQueueList.h"
 #include <stdexcept>
 
-int ReadyQueueList::schedulerType;
-
 struct ReadyQueueList::ReadyQueue {
   Process *head;
   Process *tail;
@@ -15,7 +13,8 @@ struct ReadyQueueList::ReadyQueue {
   }
 };
 
-ReadyQueueList::ReadyQueueList(int numOfQueues) {
+ReadyQueueList::ReadyQueueList(int numOfQueues, int schedulerType) {
+  this->schedulerType = schedulerType;
   for (int i = 0; i < numOfQueues; i++) {
     RQs.push_back(new ReadyQueue());
   }

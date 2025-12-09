@@ -10,12 +10,12 @@ using namespace std;
 // Ready Queue List structure
 class ReadyQueueList {
   private:  
-    static int schedulerType;
+    int schedulerType;
     struct ReadyQueue;
     vector<ReadyQueue *> RQs;
   
   public:
-    ReadyQueueList(int = 1);
+    ReadyQueueList(int = 1, int = 0);
     ~ReadyQueueList();
 
     void setSchedulerType(int);
