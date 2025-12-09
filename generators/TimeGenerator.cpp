@@ -1,7 +1,7 @@
 #include "TimeGenerator.h"
-#include <iostream>
 #include <ctime>
 #include <cmath>
+#include <stdexcept>
 
 using namespace std;
 

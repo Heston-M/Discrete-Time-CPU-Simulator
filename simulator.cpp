@@ -2,7 +2,6 @@
   Discrete Time Event Simulator
   - created 10/23/2025
   - by Heston Montagne
-  - for CS 3360 Homework #4 assignment
 
   This program creates and runs a discrete time event simulation of a multi-CPU
   queuing system. It simulates processes arriving to the system, possibly
@@ -26,6 +25,7 @@
 #include <vector>
 
 using namespace std;
+
 
 // ====================================================================
 // Event structures
@@ -299,5 +299,5 @@ int main() {
   cout << "Cleanup Complete\n";
   cout << "\n========================================\n\n";
 
-  return 1;
+  return 0;
 }
