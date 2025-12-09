@@ -177,7 +177,6 @@ int main() {
   int rqSetup;
 
   InputHandler inputHandler;
-  inputHandler.handleInput();
 
   arrivalLambda = inputHandler.getArrivalLambda();
   serviceTimeAvg = inputHandler.getServiceTimeAvg();

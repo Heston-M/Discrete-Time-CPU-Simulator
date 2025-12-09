@@ -22,9 +22,6 @@ class InputHandler {
     int numCPUs;
 
   public:
-    void handleInput(bool, bool, bool);
-    void handleInput();
-
     float getArrivalLambda();
     float getServiceTimeAvg();
     int getSchedulerType();
