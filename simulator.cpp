@@ -12,6 +12,7 @@
 */
 
 
+#include "endChecker/endChecker.h"
 #include "generators/RandomGenerator.h"
 #include "generators/TimeGenerator.h"
 #include "input/InputHandler.h"
@@ -176,14 +177,11 @@ int main() {
   int numCPUs;
   int rqSetup;
 
-  InputHandler inputHandler;
-  inputHandler.handleInput();
-
-  arrivalLambda = inputHandler.getArrivalLambda();
-  serviceTimeAvg = inputHandler.getServiceTimeAvg();
-  schedulerType = inputHandler.getSchedulerType();
-  rqSetup = inputHandler.getRQSetup();
-  numCPUs = inputHandler.getNumCPUs();
+  arrivalLambda = InputHandler::getArrivalLambda();
+  serviceTimeAvg = InputHandler::getServiceTimeAvg();
+  schedulerType = InputHandler::getSchedulerType();
+  rqSetup = InputHandler::getRQSetup();
+  numCPUs = InputHandler::getNumCPUs();
 
   if (arrivalLambda <= 0 || serviceTimeAvg <= 0 || !(schedulerType == 0 || schedulerType == 1) || numCPUs <= 0 || !(rqSetup == 1 || rqSetup == 2)) {
     throw runtime_error("Invalid arguments.");
@@ -195,6 +193,8 @@ int main() {
   timeGen = new TimeGenerator(arrivalLambda, serviceTimeAvg);
 
   cpuList = new CPUList(numCPUs);
+
+  EndChecker endChecker;
 
   if (rqSetup == 2) RQList = new ReadyQueueList(1);
   else RQList = new ReadyQueueList(numCPUs);
@@ -215,11 +215,12 @@ int main() {
   // ======================
   // SIMULATION
   // ======================
-  
-  int departures = 0;
 
-  while (eventQHead && departures < N) {
+  while (!endChecker.checkEnd()) {
     Event *event = eventQHead;
+    if (!event) {
+      throw runtime_error("Error: Event queue is empty.");
+    }
 
     float oldClock = clock;
     clock = event->time;
@@ -230,11 +231,12 @@ int main() {
     switch (event->type) {
       case ARRIVAL: 
         handleArrival(event, clock);
+        endChecker.logArrival(clock);
         break;
 
       case DEPARTURE:
         handleDeparture(event, clock);
-        departures++;
+        endChecker.logDeparture(clock);
         break;
 
       default: 

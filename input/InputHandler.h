@@ -1,6 +1,8 @@
 #ifndef INPUTHANDLER_H
 #define INPUTHANDLER_H
 
+#include "../endChecker/EndCondition.h"
+
 class InputHandler {
 
   private:
@@ -9,27 +11,25 @@ class InputHandler {
       SERVICE_TIME,
       SCHEDULER,
       RQ_SETUP,
-      NUM_CPUS
+      NUM_CPUS,
+      END_CONDITION,
+      N,
+      TIME_LIMIT
     };
 
     template <typename Type>
-    Type performInputLoop(InputType);
-
-    float arrivalLambda;
-    float serviceTimeAvg;
-    int schedulerType;
-    int rqSetup;
-    int numCPUs;
+    static Type performInputLoop(InputType);
 
   public:
-    void handleInput(bool, bool, bool);
-    void handleInput();
+    static float getArrivalLambda();
+    static float getServiceTimeAvg();
+    static int getSchedulerType();
+    static int getRQSetup();
+    static int getNumCPUs();
 
-    float getArrivalLambda();
-    float getServiceTimeAvg();
-    int getSchedulerType();
-    int getRQSetup();
-    int getNumCPUs();
+    static EndCondition getEndCondition();
+    static int getN();
+    static float getTimeLimit();
 };
 
 #endif // INPUTHANDLER_H
