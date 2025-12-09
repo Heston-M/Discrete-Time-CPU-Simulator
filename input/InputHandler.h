@@ -18,24 +18,18 @@ class InputHandler {
     };
 
     template <typename Type>
-    Type performInputLoop(InputType);
-
-    float arrivalLambda;
-    float serviceTimeAvg;
-    int schedulerType;
-    int rqSetup;
-    int numCPUs;
+    static Type performInputLoop(InputType);
 
   public:
-    float getArrivalLambda();
-    float getServiceTimeAvg();
-    int getSchedulerType();
-    int getRQSetup();
-    int getNumCPUs();
+    static float getArrivalLambda();
+    static float getServiceTimeAvg();
+    static int getSchedulerType();
+    static int getRQSetup();
+    static int getNumCPUs();
 
-    EndCondition getEndCondition();
-    int getN();
-    float getTimeLimit();
+    static EndCondition getEndCondition();
+    static int getN();
+    static float getTimeLimit();
 };
 
 #endif // INPUTHANDLER_H

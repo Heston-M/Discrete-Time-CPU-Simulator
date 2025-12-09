@@ -176,13 +176,11 @@ int main() {
   int numCPUs;
   int rqSetup;
 
-  InputHandler inputHandler;
-
-  arrivalLambda = inputHandler.getArrivalLambda();
-  serviceTimeAvg = inputHandler.getServiceTimeAvg();
-  schedulerType = inputHandler.getSchedulerType();
-  rqSetup = inputHandler.getRQSetup();
-  numCPUs = inputHandler.getNumCPUs();
+  arrivalLambda = InputHandler::getArrivalLambda();
+  serviceTimeAvg = InputHandler::getServiceTimeAvg();
+  schedulerType = InputHandler::getSchedulerType();
+  rqSetup = InputHandler::getRQSetup();
+  numCPUs = InputHandler::getNumCPUs();
 
   if (arrivalLambda <= 0 || serviceTimeAvg <= 0 || !(schedulerType == 0 || schedulerType == 1) || numCPUs <= 0 || !(rqSetup == 1 || rqSetup == 2)) {
     throw runtime_error("Invalid arguments.");
