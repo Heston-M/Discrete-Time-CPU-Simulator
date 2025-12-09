@@ -29,6 +29,17 @@ Type InputHandler::performInputLoop(InputType inputType) {
     case NUM_CPUS:
       message = "Enter the number of CPUs: ";
       break;
+    case END_CONDITION:
+      message = "Pick the end condition (0 for processes arrived, 1 for processes departed, 2 for time limit): ";
+      break;
+    case N:
+      message = "Enter the number of processes: ";
+      break;
+    case TIME_LIMIT:
+      message = "Enter the time limit (seconds): ";
+      break;
+    default:
+      throw runtime_error("Invalid input type.");
   }
 
   while (!validInput) {
@@ -64,6 +75,23 @@ Type InputHandler::performInputLoop(InputType inputType) {
           validInput = true;
         }
         break;
+      case END_CONDITION:
+        if (input == 0 || input == 1 || input == 2) {
+          validInput = true;
+        }
+        break;
+      case N:
+        if (input > 0) {
+          validInput = true;
+        }
+        break;
+      case TIME_LIMIT:
+        if (input > 0) {
+          validInput = true;
+        }
+        break;
+      default:
+        throw runtime_error("Invalid input type.");
     }
     if (!validInput) {
       cout << "Invalid input. Please try again." << endl;
@@ -105,5 +133,32 @@ int InputHandler::getNumCPUs() {
   }
   else {
     return DEFAULTNUMCPUS;
+  }
+}
+
+EndCondition InputHandler::getEndCondition() {
+  if (CHOOSEENDCONDITION) {
+    return static_cast<EndCondition>(performInputLoop<int>(END_CONDITION));
+  }
+  else {
+    return DEFAULTENDCONDITION;
+  }
+}
+
+int InputHandler::getN() {
+  if (CHOOSEENDCONDITION) {
+    return performInputLoop<int>(N);
+  }
+  else {
+    return DEFAULTN;
+  }
+}
+
+float InputHandler::getTimeLimit() {
+  if (CHOOSEENDCONDITION) {
+    return performInputLoop<float>(TIME_LIMIT);
+  }
+  else {
+    return DEFAULTTIMELIMIT;
   }
 }

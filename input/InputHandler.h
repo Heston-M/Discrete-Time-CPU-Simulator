@@ -1,6 +1,8 @@
 #ifndef INPUTHANDLER_H
 #define INPUTHANDLER_H
 
+#include "../endChecker/EndCondition.h"
+
 class InputHandler {
 
   private:
@@ -9,7 +11,10 @@ class InputHandler {
       SERVICE_TIME,
       SCHEDULER,
       RQ_SETUP,
-      NUM_CPUS
+      NUM_CPUS,
+      END_CONDITION,
+      N,
+      TIME_LIMIT
     };
 
     template <typename Type>
@@ -27,6 +32,10 @@ class InputHandler {
     int getSchedulerType();
     int getRQSetup();
     int getNumCPUs();
+
+    EndCondition getEndCondition();
+    int getN();
+    float getTimeLimit();
 };
 
 #endif // INPUTHANDLER_H
