@@ -12,6 +12,7 @@
 */
 
 
+#include "endChecker/endChecker.h"
 #include "generators/RandomGenerator.h"
 #include "generators/TimeGenerator.h"
 #include "input/InputHandler.h"
@@ -193,6 +194,8 @@ int main() {
 
   cpuList = new CPUList(numCPUs);
 
+  EndChecker endChecker;
+
   if (rqSetup == 2) RQList = new ReadyQueueList(1);
   else RQList = new ReadyQueueList(numCPUs);
   RQList->setSchedulerType(schedulerType);
@@ -212,11 +215,12 @@ int main() {
   // ======================
   // SIMULATION
   // ======================
-  
-  int departures = 0;
 
-  while (eventQHead && departures < N) {
+  while (!endChecker.checkEnd()) {
     Event *event = eventQHead;
+    if (!event) {
+      throw runtime_error("Error: Event queue is empty.");
+    }
 
     float oldClock = clock;
     clock = event->time;
@@ -227,11 +231,12 @@ int main() {
     switch (event->type) {
       case ARRIVAL: 
         handleArrival(event, clock);
+        endChecker.logArrival(clock);
         break;
 
       case DEPARTURE:
         handleDeparture(event, clock);
-        departures++;
+        endChecker.logDeparture(clock);
         break;
 
       default: 
