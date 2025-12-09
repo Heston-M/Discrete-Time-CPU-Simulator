@@ -1,0 +1,10 @@
+#ifndef ENDCONDITION_H
+#define ENDCONDITION_H
+
+enum EndCondition {
+  PROCESSES_ARRIVED,
+  PROCESSES_DEPARTED,
+  TIME_LIMIT,
+};
+
+#endif // ENDCONDITION_H
