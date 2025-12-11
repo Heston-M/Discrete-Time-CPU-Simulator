@@ -110,55 +110,55 @@ float InputHandler::getServiceTimeAvg() {
 }
 
 int InputHandler::getSchedulerType() {
-  if (CHOOSESCHEDULER) {
+  if (CHOOSE_SCHEDULER) {
     return performInputLoop<int>(SCHEDULER);
   }
   else {
-    return DEFAULTSCHEDULER;
+    return DEFAULT_SCHEDULER;
   }
 }
 
 int InputHandler::getRQSetup() {
-  if (CHOOSERQSETUP) {
+  if (CHOOSE_RQ_SETUP) {
     return performInputLoop<int>(RQ_SETUP);
   }
   else {
-    return DEFAULTRQSETUP;
+    return DEFAULT_RQ_SETUP;
   }
 }
 
 int InputHandler::getNumCPUs() {
-  if (CHOOSENUMCPUS) {
+  if (CHOOSE_NUM_CPUS) {
     return performInputLoop<int>(NUM_CPUS);
   }
   else {
-    return DEFAULTNUMCPUS;
+    return DEFAULT_NUM_CPUS;
   }
 }
 
 EndCondition InputHandler::getEndCondition() {
-  if (CHOOSEENDCONDITION) {
+  if (CHOOSE_END_CONDITION) {
     return static_cast<EndCondition>(performInputLoop<int>(END_CONDITION));
   }
   else {
-    return DEFAULTENDCONDITION;
+    return DEFAULT_END_CONDITION;
   }
 }
 
 int InputHandler::getN() {
-  if (CHOOSEENDCONDITION) {
+  if (CHOOSE_END_CONDITION) {
     return performInputLoop<int>(N);
   }
   else {
-    return DEFAULTN;
+    return DEFAULT_N;
   }
 }
 
 float InputHandler::getTimeLimit() {
-  if (CHOOSEENDCONDITION) {
+  if (CHOOSE_END_CONDITION) {
     return performInputLoop<float>(TIME_LIMIT);
   }
   else {
-    return DEFAULTTIMELIMIT;
+    return DEFAULT_TIME_LIMIT;
   }
 }
