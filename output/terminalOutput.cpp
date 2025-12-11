@@ -3,6 +3,8 @@
 
 using namespace std;
 
+int TerminalOutput::lineLength = DEFAULT_LINE_LENGTH;
+
 void TerminalOutput::printLine(char ch, int length, bool newLine) {
   for (int i = 0; i < length; i++) {
     cout << ch;

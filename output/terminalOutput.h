@@ -6,22 +6,27 @@
 
 using namespace std;
 
-const int LINE_LENGTH = 50;
+const int DEFAULT_LINE_LENGTH = 50;
 
 class TerminalOutput {
   private:
+    static int lineLength;
+  
     struct CenterLine {
       string line;
       int spaces;
     };
 
-    static void printLine(char ch = '=', int length = LINE_LENGTH, bool newLine = true);
-    static void printMessageCentered(vector<CenterLine> lines);
-    static vector<CenterLine> spliceMessage(string message, int lineLength = LINE_LENGTH);
+    static void printLine(char = '=', int = lineLength, bool = true);
+    static void printMessageCentered(vector<CenterLine>);
+    static vector<CenterLine> spliceMessage(string, int = lineLength);
 
   public:
+    static void setLineLength(int length) {
+      lineLength = length;
+    }
     static void printTitle();
-    static void printHeader(string message);
+    static void printHeader(string);
 };
 
 #endif // TERMINAL_OUTPUT_H
