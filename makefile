@@ -1,8 +1,8 @@
 
 OBJDIR := objectFiles
 
-simulator: $(OBJDIR) objectFiles/simulator.o objectFiles/RandomGenerator.o objectFiles/TimeGenerator.o objectFiles/Process.o objectFiles/ReadyQueueList.o objectFiles/CPUList.o objectFiles/StatisticsUnit.o objectFiles/InputHandler.o objectFiles/EndChecker.o
-	g++ -o simulator objectFiles/simulator.o objectFiles/RandomGenerator.o objectFiles/TimeGenerator.o objectFiles/Process.o objectFiles/ReadyQueueList.o objectFiles/CPUList.o objectFiles/StatisticsUnit.o objectFiles/InputHandler.o objectFiles/EndChecker.o
+simulator: $(OBJDIR) objectFiles/simulator.o objectFiles/RandomGenerator.o objectFiles/TimeGenerator.o objectFiles/Process.o objectFiles/ReadyQueueList.o objectFiles/CPUList.o objectFiles/StatisticsUnit.o objectFiles/InputHandler.o objectFiles/EndChecker.o objectFiles/terminalOutput.o
+	g++ -o simulator objectFiles/simulator.o objectFiles/RandomGenerator.o objectFiles/TimeGenerator.o objectFiles/Process.o objectFiles/ReadyQueueList.o objectFiles/CPUList.o objectFiles/StatisticsUnit.o objectFiles/InputHandler.o objectFiles/EndChecker.o objectFiles/terminalOutput.o
 
 $(OBJDIR):
 ifeq ($(OS),Windows_NT)
@@ -37,6 +37,9 @@ objectFiles/InputHandler.o: | $(OBJDIR) input/InputHandler.cpp input/InputHandle
 
 objectFiles/EndChecker.o: | $(OBJDIR) endChecker/endChecker.cpp endChecker/endChecker.h
 	g++ -c endChecker/endChecker.cpp -o objectFiles/EndChecker.o
+
+objectFiles/terminalOutput.o: | $(OBJDIR) output/terminalOutput.cpp output/terminalOutput.h
+	g++ -c output/terminalOutput.cpp -o objectFiles/terminalOutput.o
 
 clean:
 ifeq ($(OS),Windows_NT)

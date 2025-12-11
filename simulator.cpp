@@ -16,6 +16,7 @@
 #include "generators/RandomGenerator.h"
 #include "generators/TimeGenerator.h"
 #include "input/InputHandler.h"
+#include "output/terminalOutput.h"
 #include "processes/Process.h"
 #include "processes/ReadyQueueList.h"
 #include "processes/CPUList.h"
@@ -162,10 +163,9 @@ void handleDeparture(Event *e, float clock) {
 // ====================================================================
 int main() {
 
-  cout << "\n========================================";
-  cout << "\n     DISCRETE TIME EVENT SIMULATOR      ";
-  cout << "\n          - Heston Montagne -           ";
-  cout << "\n========================================\n\n";
+  cout << endl;
+  TerminalOutput::printTitle();
+  cout << endl;
 
   // ======================
   // INITIALIZATION
@@ -203,9 +203,8 @@ int main() {
   Process *firstProcess = new Process(timeGen->getServiceTime(), clock);
   scheduleEvent(ARRIVAL, firstProcess->arrivalTime, firstProcess);
 
-  cout << "========================================";
-  cout << "\n\nInitialization Complete\n";
-  cout << "\n========================================\n";
+  TerminalOutput::printHeader("Initialization Complete");
+  cout << endl;
 
   // ======================
   // SIMULATION
@@ -244,13 +243,12 @@ int main() {
     delete event;
   }
 
-  cout << "\nSimulation Complete\n\n";
+  TerminalOutput::printHeader("Simulation Complete");
 
   // ======================
   // STATISTICS
   // ======================
 
-  cout << "========================================\n";
   cout << "\nAverage Turnaround Time: " << stats->getAvgTurnTime()      << " seconds.\n";
   cout << "\nTotal Throughput: "        << stats->getThroughput(clock)  << " processes per second.\n";
 
@@ -270,10 +268,9 @@ int main() {
     }
   }
 
-  cout << "\n========================================\n";
-
-  cout << "\nStatistics Complete\n\n";
-  cout << "========================================\n\n";
+  cout << endl;
+  TerminalOutput::printHeader("Statistics Complete");
+  cout << endl;
 
   // ======================
   // CLEANUP
@@ -293,8 +290,8 @@ int main() {
     e = eventQHead;
   }
 
-  cout << "Cleanup Complete\n";
-  cout << "\n========================================\n\n";
+  TerminalOutput::printHeader("Cleanup Complete");
+  cout << endl;
 
   return 0;
 }
