@@ -6,11 +6,10 @@
 
 using namespace std;
 
-const int DEFAULT_LINE_LENGTH = 50;
-
 class TerminalOutput {
   private:
     static int lineLength;
+    static int padding;
   
     struct CenterLine {
       string line;
@@ -22,8 +21,11 @@ class TerminalOutput {
     static vector<CenterLine> spliceMessage(string, int = lineLength);
 
   public:
-    static void setLineLength(int length) {
-      lineLength = length;
+    static void setLineLength(int newLength) {
+      lineLength = newLength;
+    }
+    static void setPadding(int newPadding) {
+      padding = newPadding;
     }
     static void printTitle();
     static void printHeader(string);

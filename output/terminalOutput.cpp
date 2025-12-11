@@ -1,9 +1,11 @@
 #include "terminalOutput.h"
+#include "../config.h"
 #include <iostream>
 
 using namespace std;
 
 int TerminalOutput::lineLength = DEFAULT_LINE_LENGTH;
+int TerminalOutput::padding = DEFAULT_PADDING;
 
 void TerminalOutput::printLine(char ch, int length, bool newLine) {
   for (int i = 0; i < length; i++) {
@@ -24,9 +26,9 @@ void TerminalOutput::printMessageCentered(vector<CenterLine> lines) {
 
 vector<TerminalOutput::CenterLine> TerminalOutput::spliceMessage(string message, int lineLength) {
   vector<CenterLine> lines;
-  if (message.length() > lineLength) {
+  int targetLineLength = lineLength - padding;
+  if (message.length() > targetLineLength) {
     // Split the message into multiple lines
-    int targetLineLength = lineLength - 10;
     while (message.length() > targetLineLength) {
       // Find the first space in the message that is less than or equal to the target line length
       int count = -1;
@@ -34,7 +36,7 @@ vector<TerminalOutput::CenterLine> TerminalOutput::spliceMessage(string message,
       do {
         count = message.find(' ', targetLineLength - offset);
         offset++;
-      } while (count == -1);
+      } while (count == -1 || count > targetLineLength);
       
       // Add the line to the vector
       string line = message.substr(0, count);

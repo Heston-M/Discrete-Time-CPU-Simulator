@@ -30,7 +30,7 @@ g++ simulator.cpp
 ~~~
 
 ### Configuration
-There are 11 configuration constants that can be updated to change the behavior of the simulation and output. These constants can be found in /config.h. To update one or multiple, edit their value(s) and then recompile the program (see Compile and Run section above).
+There are 13 configuration constants that can be updated to change the behavior of the simulation and output. These constants can be found in /config.h. To update one or multiple, edit their value(s) and then recompile the program (see Compile and Run section above).
 
 **PRINT_LIVE_UPDATES** - boolean (default: false) - When true, prints out live updates for every arrival and departure to and from the system, including the below information. *Note: Setting this to true massively slows down the speed of the simulation.*
 * Time of the event (in seconds).
@@ -39,6 +39,10 @@ There are 11 configuration constants that can be updated to change the behavior 
 * What process is moving to the CPU (when it changes).
 * Insertions into or pulls from the Ready Queue (if any occur).
 * The amount of processes in the Ready Queue after each event.
+
+**DEFAULT_LINE_LENGTH** - integer (default: 50) - Length in characters of lines the simulator uses when formatting and printing most things to the terminal.
+
+**DEFAULT_PADDING** - integer (default: 8) - Number of spaces to leave on the sides of centered text shown in formatted blocks. The value is the sum of the padding for both sides, not the padding for each side (e.g. 8 => 4 spaces on each side). 
 
 **CHOOSE_SCHEDULER** - boolean (default: true) - If true, prompts the user to input which scheduler type the simulation should use. If false, the simulator uses the value of DEFAULT_SCHEDULER.
 
