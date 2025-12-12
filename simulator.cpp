@@ -57,6 +57,8 @@ StatisticsUnit *stats = nullptr;
 CPUList *cpuList = nullptr;
 ReadyQueueList *RQList = nullptr;
 
+Output *out = nullptr;
+
 
 // ====================================================================
 // Inserts new event for an arrival or departure to Event Queue.
@@ -92,8 +94,6 @@ void handleArrival(Event *e, float clock) {
   float nextArrivalTime = clock + timeGen->getInterArrivalTime();
   scheduleEvent(ARRIVAL, nextArrivalTime, new Process(timeGen->getServiceTime(), nextArrivalTime)); // Next arrival
 
-  if (PRINT_LIVE_UPDATES) cout << "Process " << e->process->id << " arrived. ";
-
   int CPUindex = 0;
   int RQindex = 0;
   if (RQList->getNumRQs() == 1) {   // Single Ready Queue setup
@@ -106,22 +106,21 @@ void handleArrival(Event *e, float clock) {
     CPUindex = randGen->getRandomIndex(cpuList->getNumCPUs());
     RQindex = CPUindex;
   }
+
+  Output::LiveUpdateType eventType;
   
   if (cpuList->isCPUIdle(CPUindex)) {            // Target CPU is idle
     cpuList->assignProcessToCPU(e->process, CPUindex);
     scheduleEvent(DEPARTURE, clock + e->process->serviceTime, e->process);
-    if (PRINT_LIVE_UPDATES) cout << "CPU " << CPUindex << " was idle, so process " << e->process->id 
-      << " (" << e->process->serviceTime << ") started running on CPU " << CPUindex << ". ";
+    eventType = Output::ARRIVAL_TO_CPU;
   }
   else {                                         // Target CPU is busy, add to its Ready Queue
     RQList->insertProcessRQ(e->process, RQindex);
     stats->sampleRQueue(clock, RQindex);
-    if (PRINT_LIVE_UPDATES) {
-      int RQsize = RQList->getRQSize(RQindex);
-      if (RQList->getNumRQs() == 1) cout << "No CPU was idle, so the process was added to Ready Queue (" << RQsize << "). ";
-      else cout << "CPU " << CPUindex << " was busy, so the process was added to Ready Queue " << RQindex << " (" << RQsize << "). ";
-    }
+    eventType = Output::ARRIVAL_TO_RQ;
   }
+
+  if (PRINT_LIVE_UPDATES) out->printLiveUpdate(clock, eventType, e->process, RQList);
 }
 
 
@@ -142,20 +141,23 @@ void handleDeparture(Event *e, float clock) {
     RQindex = CPUindex;
   }
 
+  Output::LiveUpdateType eventType;
+  Process *nextProcess = nullptr;
+
   cpuList->removeProcessFromCPU(CPUindex);
-  if (PRINT_LIVE_UPDATES) cout << "Process " << e->process->id << " departed from CPU " << CPUindex << ". ";
 
   if (RQList->isRQEmpty(RQindex)) {           // Target Ready Queue is empty
-    if (PRINT_LIVE_UPDATES) cout << "CPU " << CPUindex << " is now idle. ";
+    eventType = Output::DEPARTURE_CPU_IDLE;
   }
   else {                                      // Target Ready Queue is not empty, move next process to target CPU
-    Process *nextProcess = RQList->removeProcessRQ(RQindex);
+    nextProcess = RQList->removeProcessRQ(RQindex);
     cpuList->assignProcessToCPU(nextProcess, CPUindex);
     stats->sampleRQueue(clock, RQindex);
     scheduleEvent(DEPARTURE, clock + nextProcess->serviceTime, nextProcess);
-    if (PRINT_LIVE_UPDATES) cout << "Process " << nextProcess->id 
-      << " (" << nextProcess->serviceTime << ") moving to CPU " << CPUindex << ". ";
+    eventType = Output::DEPARTURE_NEXT_PROCESS;
   }
+
+  if (PRINT_LIVE_UPDATES) out->printLiveUpdate(clock, eventType, e->process, RQList, nextProcess);
 
   delete e->process;
 }
@@ -163,7 +165,7 @@ void handleDeparture(Event *e, float clock) {
 
 // ====================================================================
 int main() {
-  Output *out = new TerminalOutput();
+  out = new TerminalOutput();
 
   out->printTitle();
 
@@ -219,7 +221,6 @@ int main() {
     clock = event->time;
     float timeDiff = clock - oldClock;
 
-    if (PRINT_LIVE_UPDATES) cout << "T = " << fixed << setprecision(4) << clock << " | ";
 
     switch (event->type) {
       case ARRIVAL: 
@@ -235,8 +236,6 @@ int main() {
       default: 
         throw runtime_error("Encountered invalid event type.");
     }
-
-    if (PRINT_LIVE_UPDATES) cout << "\n";
 
     eventQHead = eventQHead->next;
     delete event;
