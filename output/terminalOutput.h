@@ -2,7 +2,6 @@
 #define TERMINAL_OUTPUT_H
 
 #include "output.h"
-#include <vector>
 
 using namespace std;
 
@@ -29,6 +28,7 @@ class TerminalOutput : public Output {
     }
     void printTitle();
     void printHeader(string);
+    void printMetric(MetricType metricType, vector<float> values);
 };
 
 #endif // TERMINAL_OUTPUT_H

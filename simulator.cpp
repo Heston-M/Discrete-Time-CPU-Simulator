@@ -165,9 +165,7 @@ void handleDeparture(Event *e, float clock) {
 int main() {
   Output *out = new TerminalOutput();
 
-  cout << endl;
   out->printTitle();
-  cout << endl;
 
   // ======================
   // INITIALIZATION
@@ -206,7 +204,6 @@ int main() {
   scheduleEvent(ARRIVAL, firstProcess->arrivalTime, firstProcess);
 
   out->printHeader("Initialization Complete");
-  cout << endl;
 
   // ======================
   // SIMULATION
@@ -251,28 +248,24 @@ int main() {
   // STATISTICS
   // ======================
 
-  cout << "\nAverage Turnaround Time: " << stats->getAvgTurnTime()      << " seconds.\n";
-  cout << "\nTotal Throughput: "        << stats->getThroughput(clock)  << " processes per second.\n";
+  out->printMetric(Output::AVG_TURN_TIME, {stats->getAvgTurnTime()});
 
-  if (cpuList->getNumCPUs() == 1) cout << "\nCPU Utilization: "         << stats->getUtilization(clock) << ".\n";
-  else {
-    cout << "\nCPU Utilizations: \n";
-    for (int i = 0; i < cpuList->getNumCPUs(); i++) {
-      cout << "    CPU " << i << " Utilization: " << stats->getUtilization(clock, i) << ".\n";
-    }
+  out->printMetric(Output::TOTAL_THROUGHPUT, {stats->getThroughput(clock)});
+
+  vector<float> utilizationValues;
+  for (int i = 0; i < cpuList->getNumCPUs(); i++) {
+    utilizationValues.push_back(stats->getUtilization(clock, i));
   }
+  out->printMetric(Output::CPU_UTILIZATION, utilizationValues);
 
-  if (RQList->getNumRQs() == 1) cout << "\nAverage Number of Processes in the Ready Queue: " << stats->getAvgProcessesInQ(clock) << " processes.\n";
-  else {
-    cout << "\nAverage Number of Processes in Each Ready Queue: \n";
-    for (int i = 0; i < RQList->getNumRQs(); i++) {
-      cout << "    Ready Queue " << i << ": " << stats->getAvgProcessesInQ(clock, i) << " processes.\n";
-    }
+  vector<float> processesInQValues;
+  for (int i = 0; i < RQList->getNumRQs(); i++) {
+    processesInQValues.push_back(stats->getAvgProcessesInQ(clock, i));
   }
+  out->printMetric(Output::AVG_PROCESSES_IN_Q, processesInQValues);
 
-  cout << endl;
+
   out->printHeader("Statistics Complete");
-  cout << endl;
 
   // ======================
   // CLEANUP
@@ -293,7 +286,6 @@ int main() {
   }
 
   out->printHeader("Cleanup Complete");
-  cout << endl;
 
   delete out;
 

@@ -1,6 +1,22 @@
 #include "terminalOutput.h"
 #include "../config.h"
 #include <iostream>
+#include <iomanip>
+#include <unordered_map>
+
+unordered_map<Output::MetricType, string> metricTypeMap = {
+  {Output::AVG_TURN_TIME, "Average Turnaround Time"},
+  {Output::TOTAL_THROUGHPUT, "Total Throughput"},
+  {Output::CPU_UTILIZATION, "CPU Utilization"},
+  {Output::AVG_PROCESSES_IN_Q, "Average Number of Processes in the Ready Queue"},
+};
+
+unordered_map<Output::MetricType, string> metricUnitMap = {
+  {Output::AVG_TURN_TIME, "seconds"},
+  {Output::TOTAL_THROUGHPUT, "processes per second"},
+  {Output::CPU_UTILIZATION, ""},
+  {Output::AVG_PROCESSES_IN_Q, "processes"},
+};
 
 using namespace std;
 
@@ -52,14 +68,30 @@ vector<TerminalOutput::CenterLine> TerminalOutput::spliceMessage(string message,
 }
 
 void TerminalOutput::printTitle() {
+  cout << endl;
   printLine();
   printMessageCentered(spliceMessage("DISCRETE TIME EVENT SIMULATOR"));
   printMessageCentered(spliceMessage("Heston Montagne"));
   printLine();
+  cout << endl;
 }
 
 void TerminalOutput::printHeader(string message) {
   printLine();
   printMessageCentered(spliceMessage(message));
   printLine();
+  cout << endl;
+}
+
+void TerminalOutput::printMetric(MetricType metricType, vector<float> values) {
+  cout << setprecision(4) << metricTypeMap[metricType] << ": ";
+  if (values.size() == 1) {
+    cout << values[0] << " " << metricUnitMap[metricType] << endl;
+  } else {
+    cout << endl;
+    for (int i = 0; i < values.size(); i++) {
+      cout << "    CPU " << i << ": " << values[i] << " " << metricUnitMap[metricType] << endl;
+    }
+  }
+  cout << endl;
 }
