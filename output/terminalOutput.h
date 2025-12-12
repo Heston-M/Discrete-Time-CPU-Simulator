@@ -1,12 +1,12 @@
 #ifndef TERMINAL_OUTPUT_H
 #define TERMINAL_OUTPUT_H
 
-#include <string>
+#include "output.h"
 #include <vector>
 
 using namespace std;
 
-class TerminalOutput {
+class TerminalOutput : public Output {
   private:
     static int lineLength;
     static int padding;
@@ -27,8 +27,8 @@ class TerminalOutput {
     static void setPadding(int newPadding) {
       padding = newPadding;
     }
-    static void printTitle();
-    static void printHeader(string);
+    void printTitle();
+    void printHeader(string);
 };
 
 #endif // TERMINAL_OUTPUT_H

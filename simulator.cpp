@@ -16,6 +16,7 @@
 #include "generators/RandomGenerator.h"
 #include "generators/TimeGenerator.h"
 #include "input/InputHandler.h"
+#include "output/output.h"
 #include "output/terminalOutput.h"
 #include "processes/Process.h"
 #include "processes/ReadyQueueList.h"
@@ -162,9 +163,10 @@ void handleDeparture(Event *e, float clock) {
 
 // ====================================================================
 int main() {
+  Output *out = new TerminalOutput();
 
   cout << endl;
-  TerminalOutput::printTitle();
+  out->printTitle();
   cout << endl;
 
   // ======================
@@ -203,7 +205,7 @@ int main() {
   Process *firstProcess = new Process(timeGen->getServiceTime(), clock);
   scheduleEvent(ARRIVAL, firstProcess->arrivalTime, firstProcess);
 
-  TerminalOutput::printHeader("Initialization Complete");
+  out->printHeader("Initialization Complete");
   cout << endl;
 
   // ======================
@@ -243,7 +245,7 @@ int main() {
     delete event;
   }
 
-  TerminalOutput::printHeader("Simulation Complete");
+  out->printHeader("Simulation Complete");
 
   // ======================
   // STATISTICS
@@ -269,7 +271,7 @@ int main() {
   }
 
   cout << endl;
-  TerminalOutput::printHeader("Statistics Complete");
+  out->printHeader("Statistics Complete");
   cout << endl;
 
   // ======================
@@ -290,8 +292,10 @@ int main() {
     e = eventQHead;
   }
 
-  TerminalOutput::printHeader("Cleanup Complete");
+  out->printHeader("Cleanup Complete");
   cout << endl;
+
+  delete out;
 
   return 0;
 }
