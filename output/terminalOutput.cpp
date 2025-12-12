@@ -95,3 +95,35 @@ void TerminalOutput::printMetric(MetricType metricType, vector<float> values) {
   }
   cout << endl;
 }
+
+void TerminalOutput::printLiveUpdate(float clock, LiveUpdateType eventType, Process *process, ReadyQueueList *RQList, Process *nextProcess) {
+  cout << fixed << setprecision(4) << clock << " | ";
+
+  switch (eventType) {
+    case ARRIVAL_TO_CPU:
+      cout << "Process " << process->id << " arrived. CPU " << process->CPUindex 
+           << " was idle, so process " << process->id << " (" << process->serviceTime 
+           << ") started running on CPU " << process->CPUindex << ". ";
+      break;
+    case ARRIVAL_TO_RQ:
+      cout << "Process " << process->id << " arrived. ";
+      if (RQList->getNumRQs() == 1) {
+        cout << "No CPU was idle, so the process was added to Ready Queue (" << RQList->getRQSize(0) << "). ";
+      } else {
+        cout << "CPU " << process->CPUindex << " was busy, so the process was added to Ready Queue " 
+             << process->CPUindex << " (" << RQList->getRQSize(process->CPUindex) << "). ";
+      }
+      break;
+    case DEPARTURE_CPU_IDLE:
+      cout << "Process " << process->id << " departed from CPU " << process->CPUindex << ". ";
+      cout << "CPU " << process->CPUindex << " is now idle. ";
+      break;
+    case DEPARTURE_NEXT_PROCESS:
+      cout << "Process " << process->id << " departed from CPU " << process->CPUindex << ". ";
+      cout << "Process " << nextProcess->id << " (" << nextProcess->serviceTime << ") moving to CPU " 
+           << process->CPUindex << ". ";
+      break;
+  }
+
+  cout << endl;
+}

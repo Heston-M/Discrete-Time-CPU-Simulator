@@ -7,6 +7,7 @@ Process::Process(float serviceT, float arrivalT) {
   serviceTime = serviceT;
   arrivalTime = arrivalT;
   departureTime = 0;
+  CPUindex = -1;
   next = nullptr;
 
   nextID++;

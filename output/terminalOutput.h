@@ -29,6 +29,7 @@ class TerminalOutput : public Output {
     void printTitle();
     void printHeader(string);
     void printMetric(MetricType metricType, vector<float> values);
+    void printLiveUpdate(float clock, LiveUpdateType eventType, Process *process, ReadyQueueList *RQList, Process *nextProcess);
 };
 
 #endif // TERMINAL_OUTPUT_H

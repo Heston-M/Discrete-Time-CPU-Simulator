@@ -1,6 +1,8 @@
 #ifndef OUTPUT_H
 #define OUTPUT_H
 
+#include "../processes/Process.h"
+#include "../processes/ReadyQueueList.h"
 #include <vector>
 #include <string>
 
@@ -15,9 +17,17 @@ class Output {
       AVG_PROCESSES_IN_Q,
     };
 
+    enum LiveUpdateType {
+      ARRIVAL_TO_CPU,
+      ARRIVAL_TO_RQ,
+      DEPARTURE_CPU_IDLE,
+      DEPARTURE_NEXT_PROCESS
+    };
+
     virtual void printTitle() = 0;
     virtual void printHeader(string message) = 0;
     virtual void printMetric(MetricType metricType, vector<float> values) = 0;
+    virtual void printLiveUpdate(float clock, LiveUpdateType eventType, Process *process, ReadyQueueList *RQList, Process *nextProcess = nullptr) = 0;
 
     virtual ~Output() = default;
 };
