@@ -110,8 +110,8 @@ void TerminalOutput::printLiveUpdate(float clock, LiveUpdateType eventType, Proc
       if (RQList->getNumRQs() == 1) {
         cout << "No CPU was idle, so the process was added to Ready Queue (" << RQList->getRQSize(0) << "). ";
       } else {
-        cout << "CPU " << process->CPUindex << " was busy, so the process was added to Ready Queue " 
-             << process->CPUindex << " (" << RQList->getRQSize(process->CPUindex) << "). ";
+        cout << "CPU " << process->RQindex << " was busy, so the process was added to Ready Queue " 
+             << process->RQindex << " (" << RQList->getRQSize(process->RQindex) << "). ";
       }
       break;
     case DEPARTURE_CPU_IDLE:

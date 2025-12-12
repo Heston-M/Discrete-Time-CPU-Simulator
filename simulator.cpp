@@ -23,9 +23,8 @@
 #include "processes/CPUList.h"
 #include "statistics/StatisticsUnit.h"
 #include "config.h"
-#include <iostream>
-#include <iomanip>
 #include <vector>
+#include <stdexcept>
 
 using namespace std;
 
