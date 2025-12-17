@@ -16,14 +16,15 @@
 #include "generators/RandomGenerator.h"
 #include "generators/TimeGenerator.h"
 #include "input/InputHandler.h"
+#include "output/output.h"
+#include "output/terminalOutput.h"
 #include "processes/Process.h"
 #include "processes/ReadyQueueList.h"
 #include "processes/CPUList.h"
 #include "statistics/StatisticsUnit.h"
 #include "config.h"
-#include <iostream>
-#include <iomanip>
 #include <vector>
+#include <stdexcept>
 
 using namespace std;
 
@@ -54,6 +55,8 @@ StatisticsUnit *stats = nullptr;
 
 CPUList *cpuList = nullptr;
 ReadyQueueList *RQList = nullptr;
+
+Output *out = nullptr;
 
 
 // ====================================================================
@@ -90,8 +93,6 @@ void handleArrival(Event *e, float clock) {
   float nextArrivalTime = clock + timeGen->getInterArrivalTime();
   scheduleEvent(ARRIVAL, nextArrivalTime, new Process(timeGen->getServiceTime(), nextArrivalTime)); // Next arrival
 
-  if (PRINT_LIVE_UPDATES) cout << "Process " << e->process->id << " arrived. ";
-
   int CPUindex = 0;
   int RQindex = 0;
   if (RQList->getNumRQs() == 1) {   // Single Ready Queue setup
@@ -104,22 +105,21 @@ void handleArrival(Event *e, float clock) {
     CPUindex = randGen->getRandomIndex(cpuList->getNumCPUs());
     RQindex = CPUindex;
   }
+
+  Output::LiveUpdateType eventType;
   
   if (cpuList->isCPUIdle(CPUindex)) {            // Target CPU is idle
     cpuList->assignProcessToCPU(e->process, CPUindex);
     scheduleEvent(DEPARTURE, clock + e->process->serviceTime, e->process);
-    if (PRINT_LIVE_UPDATES) cout << "CPU " << CPUindex << " was idle, so process " << e->process->id 
-      << " (" << e->process->serviceTime << ") started running on CPU " << CPUindex << ". ";
+    eventType = Output::ARRIVAL_TO_CPU;
   }
   else {                                         // Target CPU is busy, add to its Ready Queue
     RQList->insertProcessRQ(e->process, RQindex);
     stats->sampleRQueue(clock, RQindex);
-    if (PRINT_LIVE_UPDATES) {
-      int RQsize = RQList->getRQSize(RQindex);
-      if (RQList->getNumRQs() == 1) cout << "No CPU was idle, so the process was added to Ready Queue (" << RQsize << "). ";
-      else cout << "CPU " << CPUindex << " was busy, so the process was added to Ready Queue " << RQindex << " (" << RQsize << "). ";
-    }
+    eventType = Output::ARRIVAL_TO_RQ;
   }
+
+  if (PRINT_LIVE_UPDATES) out->printLiveUpdate(clock, eventType, e->process, RQList);
 }
 
 
@@ -140,20 +140,23 @@ void handleDeparture(Event *e, float clock) {
     RQindex = CPUindex;
   }
 
+  Output::LiveUpdateType eventType;
+  Process *nextProcess = nullptr;
+
   cpuList->removeProcessFromCPU(CPUindex);
-  if (PRINT_LIVE_UPDATES) cout << "Process " << e->process->id << " departed from CPU " << CPUindex << ". ";
 
   if (RQList->isRQEmpty(RQindex)) {           // Target Ready Queue is empty
-    if (PRINT_LIVE_UPDATES) cout << "CPU " << CPUindex << " is now idle. ";
+    eventType = Output::DEPARTURE_CPU_IDLE;
   }
   else {                                      // Target Ready Queue is not empty, move next process to target CPU
-    Process *nextProcess = RQList->removeProcessRQ(RQindex);
+    nextProcess = RQList->removeProcessRQ(RQindex);
     cpuList->assignProcessToCPU(nextProcess, CPUindex);
     stats->sampleRQueue(clock, RQindex);
     scheduleEvent(DEPARTURE, clock + nextProcess->serviceTime, nextProcess);
-    if (PRINT_LIVE_UPDATES) cout << "Process " << nextProcess->id 
-      << " (" << nextProcess->serviceTime << ") moving to CPU " << CPUindex << ". ";
+    eventType = Output::DEPARTURE_NEXT_PROCESS;
   }
+
+  if (PRINT_LIVE_UPDATES) out->printLiveUpdate(clock, eventType, e->process, RQList, nextProcess);
 
   delete e->process;
 }
@@ -161,11 +164,9 @@ void handleDeparture(Event *e, float clock) {
 
 // ====================================================================
 int main() {
+  out = new TerminalOutput();
 
-  cout << "\n========================================";
-  cout << "\n     DISCRETE TIME EVENT SIMULATOR      ";
-  cout << "\n          - Heston Montagne -           ";
-  cout << "\n========================================\n\n";
+  out->printTitle();
 
   // ======================
   // INITIALIZATION
@@ -203,9 +204,7 @@ int main() {
   Process *firstProcess = new Process(timeGen->getServiceTime(), clock);
   scheduleEvent(ARRIVAL, firstProcess->arrivalTime, firstProcess);
 
-  cout << "========================================";
-  cout << "\n\nInitialization Complete\n";
-  cout << "\n========================================\n";
+  out->printHeader("Initialization Complete");
 
   // ======================
   // SIMULATION
@@ -221,7 +220,6 @@ int main() {
     clock = event->time;
     float timeDiff = clock - oldClock;
 
-    if (PRINT_LIVE_UPDATES) cout << "T = " << fixed << setprecision(4) << clock << " | ";
 
     switch (event->type) {
       case ARRIVAL: 
@@ -238,42 +236,34 @@ int main() {
         throw runtime_error("Encountered invalid event type.");
     }
 
-    if (PRINT_LIVE_UPDATES) cout << "\n";
-
     eventQHead = eventQHead->next;
     delete event;
   }
 
-  cout << "\nSimulation Complete\n\n";
+  out->printHeader("Simulation Complete");
 
   // ======================
   // STATISTICS
   // ======================
 
-  cout << "========================================\n";
-  cout << "\nAverage Turnaround Time: " << stats->getAvgTurnTime()      << " seconds.\n";
-  cout << "\nTotal Throughput: "        << stats->getThroughput(clock)  << " processes per second.\n";
+  out->printMetric(Output::AVG_TURN_TIME, {stats->getAvgTurnTime()});
 
-  if (cpuList->getNumCPUs() == 1) cout << "\nCPU Utilization: "         << stats->getUtilization(clock) << ".\n";
-  else {
-    cout << "\nCPU Utilizations: \n";
-    for (int i = 0; i < cpuList->getNumCPUs(); i++) {
-      cout << "    CPU " << i << " Utilization: " << stats->getUtilization(clock, i) << ".\n";
-    }
+  out->printMetric(Output::TOTAL_THROUGHPUT, {stats->getThroughput(clock)});
+
+  vector<float> utilizationValues;
+  for (int i = 0; i < cpuList->getNumCPUs(); i++) {
+    utilizationValues.push_back(stats->getUtilization(clock, i));
   }
+  out->printMetric(Output::CPU_UTILIZATION, utilizationValues);
 
-  if (RQList->getNumRQs() == 1) cout << "\nAverage Number of Processes in the Ready Queue: " << stats->getAvgProcessesInQ(clock) << " processes.\n";
-  else {
-    cout << "\nAverage Number of Processes in Each Ready Queue: \n";
-    for (int i = 0; i < RQList->getNumRQs(); i++) {
-      cout << "    Ready Queue " << i << ": " << stats->getAvgProcessesInQ(clock, i) << " processes.\n";
-    }
+  vector<float> processesInQValues;
+  for (int i = 0; i < RQList->getNumRQs(); i++) {
+    processesInQValues.push_back(stats->getAvgProcessesInQ(clock, i));
   }
+  out->printMetric(Output::AVG_PROCESSES_IN_Q, processesInQValues);
 
-  cout << "\n========================================\n";
 
-  cout << "\nStatistics Complete\n\n";
-  cout << "========================================\n\n";
+  out->printHeader("Statistics Complete");
 
   // ======================
   // CLEANUP
@@ -293,8 +283,9 @@ int main() {
     e = eventQHead;
   }
 
-  cout << "Cleanup Complete\n";
-  cout << "\n========================================\n\n";
+  out->printHeader("Cleanup Complete");
+
+  delete out;
 
   return 0;
 }

@@ -52,6 +52,7 @@ bool ReadyQueueList::isRQEmpty(int queueIndex = 0) {
 
 // Insert process into the target Ready Queue based on FCFS or SJF
 void ReadyQueueList::insertProcessRQ(Process *process, int queueIndex = 0) {
+  process->RQindex = queueIndex;
   ReadyQueue *RQ = RQs[queueIndex];
 
   if (schedulerType == 0) {              // FCFS

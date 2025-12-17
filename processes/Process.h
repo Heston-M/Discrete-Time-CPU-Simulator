@@ -14,6 +14,7 @@ class Process {
     float arrivalTime;
     float departureTime;
     int CPUindex;
+    int RQindex;
     Process *next;
   
     Process(float, float);

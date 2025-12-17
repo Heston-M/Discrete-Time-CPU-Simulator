@@ -8,6 +8,8 @@
 // ====================================================================
 
 const bool PRINT_LIVE_UPDATES = false;  // Print live event updates to console (slows performance)
+const int DEFAULT_LINE_LENGTH = 50;     // Default line length for terminal output
+const int DEFAULT_PADDING = 8;          // Default padding for terminal output
 
 const bool CHOOSE_SCHEDULER = true;      // Prompt user to choose scheduler at runtime
 const bool CHOOSE_NUM_CPUS = true;        // Prompt user to choose number of CPUs at runtime
