@@ -96,7 +96,7 @@ void TerminalOutput::printMetric(MetricType metricType, vector<float> values) {
   cout << endl;
 }
 
-void TerminalOutput::printLiveUpdate(float clock, LiveUpdateType eventType, Process *process, ReadyQueueList *RQList, Process *nextProcess) {
+void TerminalOutput::printLiveUpdate(float clock, LiveUpdateType eventType, Process *process, ReadyQueueList *RQList, Process *otherProcess) {
   cout << fixed << setprecision(4) << clock << " | ";
 
   switch (eventType) {
@@ -104,6 +104,13 @@ void TerminalOutput::printLiveUpdate(float clock, LiveUpdateType eventType, Proc
       cout << "Process " << process->id << " arrived. CPU " << process->CPUindex 
            << " was idle, so process " << process->id << " (" << process->serviceTime 
            << ") started running on CPU " << process->CPUindex << ". ";
+      break;
+    case ARRIVAL_PREEMPT_SRTF:
+      cout << "Process " << process->id << " arrived to CPU " << process->CPUindex << ". It's service time " 
+           << process->serviceTime << " was less than the time left for process " << otherProcess->id << " (" 
+           << otherProcess->timeLeft << ") so process " << otherProcess->id << " was preempted and added to Ready Queue " 
+           << otherProcess->RQindex << " (" << RQList->getRQSize(otherProcess->RQindex) << "). Process " 
+           << process->id << " started running on CPU " << process->CPUindex << ". ";
       break;
     case ARRIVAL_TO_RQ:
       cout << "Process " << process->id << " arrived. ";
@@ -120,18 +127,18 @@ void TerminalOutput::printLiveUpdate(float clock, LiveUpdateType eventType, Proc
       break;
     case DEPARTURE_NEXT_PROCESS:
       cout << "Process " << process->id << " departed from CPU " << process->CPUindex << ". ";
-      cout << "Process " << nextProcess->id << " (" << nextProcess->serviceTime << ") moving to CPU " 
+      cout << "Process " << otherProcess->id << " (" << otherProcess->serviceTime << ") moving to CPU " 
            << process->CPUindex << ". ";
       break;
     case PREEMPTION_INTERVAL:
       cout << "Process " << process->id << " was preempted after running for " << clock - process->lastRunTime 
            << " seconds on CPU " << process->CPUindex << ". ";
-      if (process->id == nextProcess->id) {
+      if (process->id == otherProcess->id) {
         cout << "The Ready Queue was empty, so the process was restarted on CPU " << process->CPUindex << ". ";
       } else {
         cout << "The process was added to Ready Queue " << process->RQindex << " (" 
-             << RQList->getRQSize(process->RQindex) << ") and process " << nextProcess->id 
-             << " (" << nextProcess->serviceTime << ") started running on CPU " << nextProcess->CPUindex << ". ";
+             << RQList->getRQSize(process->RQindex) << ") and process " << otherProcess->id 
+             << " (" << otherProcess->serviceTime << ") started running on CPU " << otherProcess->CPUindex << ". ";
       }
   }
 

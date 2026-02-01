@@ -19,6 +19,7 @@ class Output {
 
     enum LiveUpdateType {
       ARRIVAL_TO_CPU,
+      ARRIVAL_PREEMPT_SRTF,
       ARRIVAL_TO_RQ,
       DEPARTURE_CPU_IDLE,
       DEPARTURE_NEXT_PROCESS,

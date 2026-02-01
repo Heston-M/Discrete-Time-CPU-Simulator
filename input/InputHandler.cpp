@@ -21,7 +21,7 @@ Type InputHandler::performInputLoop(InputType inputType) {
       message = "Enter the average service time (seconds): ";
       break;
     case SCHEDULER:
-      message = "Pick the scheduler (0 for FCFS, 1 for SJF): ";
+      message = "Pick the scheduler (0 for FCFS, 1 for SJF, 2 for SRTM): ";
       break;
     case RQ_SETUP:
       message = "Pick the Ready Queue setup (1 for RQ per-CPU, 2 for single global RQ): ";
@@ -61,7 +61,7 @@ Type InputHandler::performInputLoop(InputType inputType) {
         }
         break;
       case SCHEDULER:
-        if (input == 0 || input == 1) {
+        if (input == 0 || input == 1 || input == 2) {
           validInput = true;
         }
         break;
