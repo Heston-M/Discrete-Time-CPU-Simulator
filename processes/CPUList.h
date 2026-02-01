@@ -22,7 +22,7 @@ class CPUList {
   
     void assignProcessToCPU(float, Process *, int);
     Process* getProcessOnCPU(int);
-    Process* removeProcessFromCPU(int);
+    Process* removeProcessFromCPU(float, int);
   };
 
 #endif // CPULIST_H

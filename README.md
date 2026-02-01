@@ -1,7 +1,7 @@
 # Discrete Time Event Simulator for a Multi-CPU Queuing System
 Creator: Heston Montagne
 
-This C++ program simulates an Multi-CPU queuing system representing CPU scheduling based on a First-Come First-Served (FCFS) algorithm or a Shortest Job First (SJF) algorithm. It uses discrete-time events to handle arrivals and departures of processes.
+This C++ program simulates an Multi-CPU queuing system representing CPU scheduling based on a First-Come First-Served (FCFS) algorithm, Shortest Job First (SJF) algorithm, or Shortest Remaining Time First (SRTF) algorithm. It uses discrete-time events to handle arrivals and departures of processes.
 
 ## Table of Contents
  1. [Setup Instructions](#setup-instructions)
@@ -20,13 +20,13 @@ Included with the program is a pre-compiled version of the program simulator.exe
 ### Compile and Run
 To compile and run the source code (C++), navigate to the root directory and run the following commands.
 ~~~
-g++ simulator.cpp
-./a.exe
+make
+./simulator.exe
 ~~~
 If on linux, the executable will be of the file type .out, so instead run the following.
 ~~~
-g++ simulator.cpp
-./a.out
+make
+./simulator.out
 ~~~
 
 ### Configuration
@@ -52,7 +52,7 @@ There are 13 configuration constants that can be updated to change the behavior 
 
 **CHOOSE_END_CONDITION** - boolean (default: true) - If true, prompts the user to input which end condition the simulation should use. Then follow-up prompts the user based on the type of end condition chosen (number of processes or time limit). If false, the simulator uses the value of DEFAULT_END_CONDITION and DEFAULT_N or DEFAULT_TIME_LIMIT (whichever is needed for the end condition determined by DEFAULT_END_CONDITION).
 
-**DEFAULT_SCHEDULER** - integer (default: 0) - Scheduler type the simulator will use if CHOOSE_SCHEDULER is false. 0 for FCFS, 1 for SJF.
+**DEFAULT_SCHEDULER** - integer (default: 0) - Scheduler type the simulator will use if CHOOSE_SCHEDULER is false. 0 for FCFS, 1 for SJF, 2 for SRTF.
 
 **DEFAULT_NUM_CPUS** - integer (default: 1) - Number of CPUs the simulator will use if CHOOSE_NUM_CPUS is false.
 
@@ -71,7 +71,7 @@ With default configuration, the simulator takes 7 arguments (entered in the comm
 
 **Average Service Time** - float - The average time the CPU takes to service each process. Measured in seconds.
 
-**Scheduler** - 0 or 1 - The scheduler to use. 0 for FCFS, 1 for SJF.
+**Scheduler** - 0, 1, or 2 - The scheduler to use. 0 for FCFS, 1 for SJF, 2 for SRTF.
 
 **Ready Queue Scenario** - 1 or 2 - The Ready Queue scenario to use. 1 for per-CPU Ready Queues, 2 for a single global Ready Queue. 
 
@@ -98,22 +98,18 @@ The simulator calculates 4 metrics for the simulated system:
 The simulator displays its results to the terminal. It displays markers when stages of the simulator program (initialization, simulation, statistics, and cleanup) have completed. The simulator outputs 4 metrics for the simulated system. These metrics are stated in the Metrics section.
 
 ## Project Status
-This project is currently *in-progress*. Current development is focusing on separating out code to follow OOP principles more closely. 
+This project is currently *in-progress*. Current development is focusing on adding more scheduler types, adding more dynamic elements to the system, and setting up for a GUI.
 
 ### Planned Additions/Changes
-* Add preemption of processes (interrupting their execution partially through running)
-
-* Add more scheduler types (e.g. SRTF, HRRN, Round Robin)
+* Add more scheduler types (e.g. HRRN, Round Robin)
 
 * Introduce a GUI for inputing the parameters of the simulator and viewing the output metrics. 
-
   * Qt is the current forerunner for which framework to use.
+  * A React/React Native wrapper is also an appealing option.
 
-### Possible Additions/Changes
 * Introduce ways to unbalance workloads between CPUs
-
   * Add process types for asymmetric multiprocessing
-
   * Add processor affinities.
 
+### Possible Additions/Changes
 * Add push/pull migration between multiple ready queues for load balancing.

@@ -28,9 +28,11 @@ int main() {
   process->RQindex = 0;
   Process* process2 = new Process(15.0, 15.0);
   process2->CPUindex = 0;
+  process2->RQindex = 0;
   ReadyQueueList* RQList = new ReadyQueueList(1, 0);
   
   out->printLiveUpdate(10.0, Output::ARRIVAL_TO_CPU, process, RQList, nullptr);
+  out->printLiveUpdate(10.0, Output::ARRIVAL_PREEMPT_SRTF, process, RQList, process2);
   out->printLiveUpdate(10.0, Output::ARRIVAL_TO_RQ, process, RQList, nullptr);
   out->printLiveUpdate(10.0, Output::DEPARTURE_CPU_IDLE, process, RQList, nullptr);
   out->printLiveUpdate(10.0, Output::DEPARTURE_NEXT_PROCESS, process, RQList, process2);

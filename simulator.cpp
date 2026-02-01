@@ -47,7 +47,7 @@ struct Event {
 
 // ====================================================================
 // GLOBAL VARIABLES
-int schedulerType = 0; // 0 = FCFS, 1 = SJF
+int schedulerType = 0; // 0 = FCFS, 1 = SJF, 2 = SRTF
 Event *eventQHead = nullptr;
 
 RandomGenerator *randGen = nullptr;
@@ -87,6 +87,30 @@ void scheduleEvent(EventType type, float t, Process *process) {
 
 
 // ====================================================================
+// Finds and deletes an event from the Event Queue.
+// Returns true if event was found and deleted, false otherwise.
+bool findAndDeleteEvent(EventType type, Process *target) {
+  Event *prev = nullptr;
+  Event *current = eventQHead;
+  while (current) {
+    if (current->type == type && current->process == target) {
+      if (prev) {
+        prev->next = current->next;
+      }
+      else {
+        eventQHead = current->next;
+      }
+      delete current;
+      return true;
+    }
+    prev = current;
+    current = current->next;
+  }
+  return false;
+}
+
+
+// ====================================================================
 // Handle an arrival event (process arrives to system)
 // Generates next arrival based on clock.
 // Assigns e's process to the CPU (if idle), or inserts it into the Ready Queue.
@@ -108,19 +132,31 @@ void handleArrival(Event *e, float clock) {
   }
 
   Output::LiveUpdateType eventType;
+  Process *currentProcess = nullptr;
   
   if (cpuList->isCPUIdle(CPUindex)) {            // Target CPU is idle
+    e->process->RQindex = RQindex;
     cpuList->assignProcessToCPU(clock, e->process, CPUindex);
     scheduleEvent(DEPARTURE, clock + e->process->serviceTime, e->process);
     eventType = Output::ARRIVAL_TO_CPU;
   }
-  else {                                         // Target CPU is busy, add to its Ready Queue
+  else {     // Target CPU is busy, add to its Ready Queue, but check for preemption
     RQList->insertProcessRQ(e->process, RQindex);
     stats->sampleRQueue(clock, RQindex);
-    eventType = Output::ARRIVAL_TO_RQ;
+
+    currentProcess = cpuList->getProcessOnCPU(CPUindex);
+    float timeLeft = currentProcess->timeLeft - (clock - currentProcess->lastRunTime);
+    if (schedulerType == 2 && e->process->serviceTime < timeLeft) {  // SRTF & preempt process on CPU
+      e->process->CPUindex = CPUindex;
+      scheduleEvent(PREEMPTION, clock, currentProcess);
+      eventType = Output::ARRIVAL_PREEMPT_SRTF;
+    }
+    else {
+      eventType = Output::ARRIVAL_TO_RQ;
+    }
   }
 
-  if (PRINT_LIVE_UPDATES) out->printLiveUpdate(clock, eventType, e->process, RQList);
+  if (PRINT_LIVE_UPDATES) out->printLiveUpdate(clock, eventType, e->process, RQList, currentProcess);
 }
 
 
@@ -144,7 +180,7 @@ void handleDeparture(Event *e, float clock) {
   Output::LiveUpdateType eventType;
   Process *nextProcess = nullptr;
 
-  cpuList->removeProcessFromCPU(CPUindex);
+  cpuList->removeProcessFromCPU(clock, CPUindex);
 
   if (RQList->isRQEmpty(RQindex)) {           // Target Ready Queue is empty
     eventType = Output::DEPARTURE_CPU_IDLE;
@@ -178,15 +214,16 @@ void handlePreemption(Event *e, float clock) {
     RQindex = CPUindex;
   }
 
-  Process *process = cpuList->removeProcessFromCPU(CPUindex);    // Put process into Ready Queue
-  process->timeLeft -= clock - process->lastRunTime;
+  Process *process = cpuList->removeProcessFromCPU(clock, CPUindex);    // Put process into Ready Queue
+  findAndDeleteEvent(DEPARTURE, process);
   RQList->insertProcessRQ(process, RQindex);
 
   Process *nextProcess = RQList->removeProcessRQ(RQindex);       // Move next process in RQ to CPU
   cpuList->assignProcessToCPU(clock, nextProcess, CPUindex);
   scheduleEvent(DEPARTURE, clock + nextProcess->timeLeft, nextProcess);
 
-  if (PRINT_LIVE_UPDATES) out->printLiveUpdate(clock, Output::PREEMPTION_INTERVAL, process, RQList, nextProcess);
+  bool arrivalPreempt = nextProcess->arrivalTime == clock;
+  if (PRINT_LIVE_UPDATES && !arrivalPreempt) out->printLiveUpdate(clock, Output::PREEMPTION_INTERVAL, process, RQList, nextProcess);
 }
 
 
@@ -214,8 +251,8 @@ int main() {
 
   EndChecker endChecker;
 
-  if (arrivalLambda <= 0 || serviceTimeAvg <= 0 || !(schedulerType == 0 || schedulerType == 1) || numCPUs <= 0 || !(rqSetup == 1 || rqSetup == 2)) {
-    throw runtime_error("Invalid arguments.");
+  if (arrivalLambda <= 0 || serviceTimeAvg <= 0 || !(schedulerType == 0 || schedulerType == 1 || schedulerType == 2) || numCPUs <= 0 || !(rqSetup == 1 || rqSetup == 2)) {
+    throw runtime_error("Invalid user-input arguments.");
   }
 
   int numRQs = rqSetup == 2 ? 1 : numCPUs;
