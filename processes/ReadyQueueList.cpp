@@ -55,7 +55,21 @@ void ReadyQueueList::insertProcessRQ(Process *process, int queueIndex = 0) {
   process->RQindex = queueIndex;
   ReadyQueue *RQ = RQs[queueIndex];
 
-  if (schedulerType == 0) {              // FCFS
+  if (schedulerType == 1 || schedulerType == 2) {      // SJF & SRTM
+    if (!RQ->head || process->timeLeft < RQ->head->timeLeft) {
+      process->next = RQ->head;
+      RQ->head = process;
+    }
+    else {
+      Process *p = RQ->head;
+      while (p->next && p->next->timeLeft < process->timeLeft) {
+          p = p->next;
+      }
+      process->next = p->next;
+      p->next = process;
+    }
+  }
+  else {                                               // FCFS & default
     if (RQs[queueIndex]->head == nullptr) {
       RQ->head = process;
       RQ->tail = process;
@@ -63,20 +77,6 @@ void ReadyQueueList::insertProcessRQ(Process *process, int queueIndex = 0) {
     else {
       RQ->tail->next = process;
       RQ->tail = process;
-    }
-  }
-  else {                                 // SJF
-    if (!RQ->head || process->serviceTime < RQ->head->serviceTime) {
-      process->next = RQ->head;
-      RQ->head = process;
-    }
-    else {
-      Process *p = RQ->head;
-      while (p->next && p->next->serviceTime < process->serviceTime) {
-          p = p->next;
-      }
-      process->next = p->next;
-      p->next = process;
     }
   }
   RQ->size++;

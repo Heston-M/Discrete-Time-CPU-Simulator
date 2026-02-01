@@ -47,7 +47,7 @@ struct Event {
 
 // ====================================================================
 // GLOBAL VARIABLES
-int schedulerType = 0; // 0 = FCFS, 1 = SJF
+int schedulerType = 0; // 0 = FCFS, 1 = SJF, 2 = SRTF
 Event *eventQHead = nullptr;
 
 RandomGenerator *randGen = nullptr;
@@ -108,19 +108,31 @@ void handleArrival(Event *e, float clock) {
   }
 
   Output::LiveUpdateType eventType;
+  Process *currentProcess = nullptr;
   
   if (cpuList->isCPUIdle(CPUindex)) {            // Target CPU is idle
     cpuList->assignProcessToCPU(clock, e->process, CPUindex);
     scheduleEvent(DEPARTURE, clock + e->process->serviceTime, e->process);
     eventType = Output::ARRIVAL_TO_CPU;
   }
-  else {                                         // Target CPU is busy, add to its Ready Queue
-    RQList->insertProcessRQ(e->process, RQindex);
-    stats->sampleRQueue(clock, RQindex);
-    eventType = Output::ARRIVAL_TO_RQ;
+  else {
+    currentProcess = cpuList->getProcessOnCPU(CPUindex);
+    float timeLeft = currentProcess->timeLeft + clock - currentProcess->lastRunTime;
+    if (schedulerType == 2 && e->process->serviceTime < timeLeft) {  // SRTF & preempt process on CPU
+      cpuList->removeProcessFromCPU(CPUindex);
+      currentProcess->timeLeft = timeLeft;
+      RQList->insertProcessRQ(currentProcess, RQindex);
+      cpuList->assignProcessToCPU(clock, e->process, RQindex);
+      eventType = Output::ARRIVAL_PREEMPT_SRTF;
+    }
+    else {                                         // Target CPU is busy, add to its Ready Queue
+      RQList->insertProcessRQ(e->process, RQindex);
+      stats->sampleRQueue(clock, RQindex);
+      eventType = Output::ARRIVAL_TO_RQ;
+    }
   }
 
-  if (PRINT_LIVE_UPDATES) out->printLiveUpdate(clock, eventType, e->process, RQList);
+  if (PRINT_LIVE_UPDATES) out->printLiveUpdate(clock, eventType, e->process, RQList, currentProcess);
 }
 
 
