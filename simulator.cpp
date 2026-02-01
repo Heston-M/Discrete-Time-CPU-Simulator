@@ -33,7 +33,8 @@ using namespace std;
 // Event structures
 enum EventType {
   ARRIVAL,
-  DEPARTURE
+  DEPARTURE,
+  PREEMPTION
 };
 
 struct Event {
@@ -109,7 +110,7 @@ void handleArrival(Event *e, float clock) {
   Output::LiveUpdateType eventType;
   
   if (cpuList->isCPUIdle(CPUindex)) {            // Target CPU is idle
-    cpuList->assignProcessToCPU(e->process, CPUindex);
+    cpuList->assignProcessToCPU(clock, e->process, CPUindex);
     scheduleEvent(DEPARTURE, clock + e->process->serviceTime, e->process);
     eventType = Output::ARRIVAL_TO_CPU;
   }
@@ -150,7 +151,7 @@ void handleDeparture(Event *e, float clock) {
   }
   else {                                      // Target Ready Queue is not empty, move next process to target CPU
     nextProcess = RQList->removeProcessRQ(RQindex);
-    cpuList->assignProcessToCPU(nextProcess, CPUindex);
+    cpuList->assignProcessToCPU(clock, nextProcess, CPUindex);
     stats->sampleRQueue(clock, RQindex);
     scheduleEvent(DEPARTURE, clock + nextProcess->serviceTime, nextProcess);
     eventType = Output::DEPARTURE_NEXT_PROCESS;

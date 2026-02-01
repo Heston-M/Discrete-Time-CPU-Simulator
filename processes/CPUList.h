@@ -20,7 +20,7 @@ class CPUList {
     bool isCPUIdle(int);
     vector<int> getIdleCPUs();
   
-    void assignProcessToCPU(Process *, int);
+    void assignProcessToCPU(float, Process *, int);
     Process* getProcessOnCPU(int);
     Process* removeProcessFromCPU(int);
   };
