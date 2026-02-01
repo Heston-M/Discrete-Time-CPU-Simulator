@@ -126,7 +126,7 @@ void handleArrival(Event *e, float clock) {
 
 // ====================================================================
 // Handle a departure event (process is finished on CPU)
-// Deletes e.
+// Deletes e's process.
 // Next process is pulled from the Ready Queue, or the CPU goes idle if empty.
 void handleDeparture(Event *e, float clock) {
   stats->processDone(e->process, clock);
@@ -160,6 +160,33 @@ void handleDeparture(Event *e, float clock) {
   if (PRINT_LIVE_UPDATES) out->printLiveUpdate(clock, eventType, e->process, RQList, nextProcess);
 
   delete e->process;
+}
+
+
+// ====================================================================
+// Handle a preemption event (process is interrupted while running on CPU)
+// Puts e's process back into the Ready Queue and puts next process on CPU.
+// Puts the process back on the CPU if the Ready Queue is empty. 
+void handlePreemption(Event *e, float clock) {
+  int CPUindex = e->process->CPUindex;
+  if (e->process->id != cpuList->getProcessOnCPU(CPUindex)->id) {
+    throw runtime_error("Error: Process on CPU does not match preempted process.");
+  }
+
+  int RQindex = 0;
+  if (RQList->getNumRQs() != 1) {
+    RQindex = CPUindex;
+  }
+
+  Process *process = cpuList->removeProcessFromCPU(CPUindex);    // Put process into Ready Queue
+  process->timeLeft -= clock - process->lastRunTime;
+  RQList->insertProcessRQ(process, RQindex);
+
+  Process *nextProcess = RQList->removeProcessRQ(RQindex);       // Move next process in RQ to CPU
+  cpuList->assignProcessToCPU(clock, nextProcess, CPUindex);
+  scheduleEvent(DEPARTURE, clock + nextProcess->timeLeft, nextProcess);
+
+  if (PRINT_LIVE_UPDATES) out->printLiveUpdate(clock, Output::PREEMPTION_INTERVAL, process, RQList, nextProcess);
 }
 
 
@@ -231,6 +258,10 @@ int main() {
       case DEPARTURE:
         handleDeparture(event, clock);
         endChecker.logDeparture(clock);
+        break;
+
+      case PREEMPTION:
+        handlePreemption(event, clock);
         break;
 
       default: 
