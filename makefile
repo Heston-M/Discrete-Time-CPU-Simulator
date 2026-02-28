@@ -1,3 +1,7 @@
+ifeq ($(OS),Windows_NT)
+SHELL := cmd.exe
+.SHELLFLAGS := /C
+endif
 
 OBJDIR := objectFiles
 

@@ -123,6 +123,16 @@ void TerminalOutput::printLiveUpdate(float clock, LiveUpdateType eventType, Proc
       cout << "Process " << nextProcess->id << " (" << nextProcess->serviceTime << ") moving to CPU " 
            << process->CPUindex << ". ";
       break;
+    case PREEMPTION_INTERVAL:
+      cout << "Process " << process->id << " was preempted after running for " << clock - process->lastRunTime 
+           << " seconds on CPU " << process->CPUindex << ". ";
+      if (process->id == nextProcess->id) {
+        cout << "The Ready Queue was empty, so the process was restarted on CPU " << process->CPUindex << ". ";
+      } else {
+        cout << "The process was added to Ready Queue " << process->RQindex << " (" 
+             << RQList->getRQSize(process->RQindex) << ") and process " << nextProcess->id 
+             << " (" << nextProcess->serviceTime << ") started running on CPU " << nextProcess->CPUindex << ". ";
+      }
   }
 
   cout << endl;

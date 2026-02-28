@@ -21,7 +21,8 @@ class Output {
       ARRIVAL_TO_CPU,
       ARRIVAL_TO_RQ,
       DEPARTURE_CPU_IDLE,
-      DEPARTURE_NEXT_PROCESS
+      DEPARTURE_NEXT_PROCESS,
+      PREEMPTION_INTERVAL
     };
 
     virtual void printTitle() = 0;

@@ -33,7 +33,8 @@ using namespace std;
 // Event structures
 enum EventType {
   ARRIVAL,
-  DEPARTURE
+  DEPARTURE,
+  PREEMPTION
 };
 
 struct Event {
@@ -109,7 +110,7 @@ void handleArrival(Event *e, float clock) {
   Output::LiveUpdateType eventType;
   
   if (cpuList->isCPUIdle(CPUindex)) {            // Target CPU is idle
-    cpuList->assignProcessToCPU(e->process, CPUindex);
+    cpuList->assignProcessToCPU(clock, e->process, CPUindex);
     scheduleEvent(DEPARTURE, clock + e->process->serviceTime, e->process);
     eventType = Output::ARRIVAL_TO_CPU;
   }
@@ -125,7 +126,7 @@ void handleArrival(Event *e, float clock) {
 
 // ====================================================================
 // Handle a departure event (process is finished on CPU)
-// Deletes e.
+// Deletes e's process.
 // Next process is pulled from the Ready Queue, or the CPU goes idle if empty.
 void handleDeparture(Event *e, float clock) {
   stats->processDone(e->process, clock);
@@ -150,7 +151,7 @@ void handleDeparture(Event *e, float clock) {
   }
   else {                                      // Target Ready Queue is not empty, move next process to target CPU
     nextProcess = RQList->removeProcessRQ(RQindex);
-    cpuList->assignProcessToCPU(nextProcess, CPUindex);
+    cpuList->assignProcessToCPU(clock, nextProcess, CPUindex);
     stats->sampleRQueue(clock, RQindex);
     scheduleEvent(DEPARTURE, clock + nextProcess->serviceTime, nextProcess);
     eventType = Output::DEPARTURE_NEXT_PROCESS;
@@ -159,6 +160,33 @@ void handleDeparture(Event *e, float clock) {
   if (PRINT_LIVE_UPDATES) out->printLiveUpdate(clock, eventType, e->process, RQList, nextProcess);
 
   delete e->process;
+}
+
+
+// ====================================================================
+// Handle a preemption event (process is interrupted while running on CPU)
+// Puts e's process back into the Ready Queue and puts next process on CPU.
+// Puts the process back on the CPU if the Ready Queue is empty. 
+void handlePreemption(Event *e, float clock) {
+  int CPUindex = e->process->CPUindex;
+  if (e->process->id != cpuList->getProcessOnCPU(CPUindex)->id) {
+    throw runtime_error("Error: Process on CPU does not match preempted process.");
+  }
+
+  int RQindex = 0;
+  if (RQList->getNumRQs() != 1) {
+    RQindex = CPUindex;
+  }
+
+  Process *process = cpuList->removeProcessFromCPU(CPUindex);    // Put process into Ready Queue
+  process->timeLeft -= clock - process->lastRunTime;
+  RQList->insertProcessRQ(process, RQindex);
+
+  Process *nextProcess = RQList->removeProcessRQ(RQindex);       // Move next process in RQ to CPU
+  cpuList->assignProcessToCPU(clock, nextProcess, CPUindex);
+  scheduleEvent(DEPARTURE, clock + nextProcess->timeLeft, nextProcess);
+
+  if (PRINT_LIVE_UPDATES) out->printLiveUpdate(clock, Output::PREEMPTION_INTERVAL, process, RQList, nextProcess);
 }
 
 
@@ -232,6 +260,10 @@ int main() {
         endChecker.logDeparture(clock);
         break;
 
+      case PREEMPTION:
+        handlePreemption(event, clock);
+        break;
+
       default: 
         throw runtime_error("Encountered invalid event type.");
     }
@@ -278,7 +310,7 @@ int main() {
   Event *e = eventQHead;
   while (eventQHead) {
     eventQHead = eventQHead->next;
-    delete e->process;
+    if (e->type == ARRIVAL) delete e->process;
     delete e;
     e = eventQHead;
   }

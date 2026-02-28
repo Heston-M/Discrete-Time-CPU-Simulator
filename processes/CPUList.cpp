@@ -32,9 +32,10 @@ vector<int> CPUList::getIdleCPUs() {
   return idleCPUs;
 }
 
-void CPUList::assignProcessToCPU(Process *process, int cpuIndex = 0) {
+void CPUList::assignProcessToCPU(float clock, Process *process, int cpuIndex = 0) {
   CPUs[cpuIndex] = process;
   if (process) process->CPUindex = cpuIndex;
+  process->lastRunTime = clock;
 }
 
 Process* CPUList::getProcessOnCPU(int cpuIndex = 0) {

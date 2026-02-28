@@ -11,7 +11,9 @@ class Process {
   public:
     int id;
     float serviceTime;
+    float timeLeft;
     float arrivalTime;
+    float lastRunTime;
     float departureTime;
     int CPUindex;
     int RQindex;
