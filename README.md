@@ -1,7 +1,7 @@
 # Discrete Time Event Simulator for a Multi-CPU Queuing System
 Creator: Heston Montagne
 
-This C++ program simulates an Multi-CPU queuing system representing CPU scheduling based on a First-Come First-Served (FCFS) algorithm, Shortest Job First (SJF) algorithm, or Shortest Remaining Time First (SRTF) algorithm. It uses discrete-time events to handle arrivals and departures of processes.
+This C++ program simulates an Multi-CPU queuing system representing CPU scheduling based on a First-Come First-Served (FCFS), Shortest Job First (SJF), Shortest Remaining Time First (SRTF), or Highest Response-Ratio Next (HRRN) algorithm. It uses discrete-time events to handle arrivals and departures of processes.
 
 ## Table of Contents
  1. [Setup Instructions](#setup-instructions)
@@ -52,7 +52,7 @@ There are 13 configuration constants that can be updated to change the behavior 
 
 **CHOOSE_END_CONDITION** - boolean (default: true) - If true, prompts the user to input which end condition the simulation should use. Then follow-up prompts the user based on the type of end condition chosen (number of processes or time limit). If false, the simulator uses the value of DEFAULT_END_CONDITION and DEFAULT_N or DEFAULT_TIME_LIMIT (whichever is needed for the end condition determined by DEFAULT_END_CONDITION).
 
-**DEFAULT_SCHEDULER** - integer (default: 0) - Scheduler type the simulator will use if CHOOSE_SCHEDULER is false. 0 for FCFS, 1 for SJF, 2 for SRTF.
+**DEFAULT_SCHEDULER** - integer (default: 0) - Scheduler type the simulator will use if CHOOSE_SCHEDULER is false. 0 for FCFS, 1 for SJF, 2 for SRTF, 3 for HRRN.
 
 **DEFAULT_NUM_CPUS** - integer (default: 1) - Number of CPUs the simulator will use if CHOOSE_NUM_CPUS is false.
 
@@ -71,7 +71,7 @@ With default configuration, the simulator takes 7 arguments (entered in the comm
 
 **Average Service Time** - float - The average time the CPU takes to service each process. Measured in seconds.
 
-**Scheduler** - 0, 1, or 2 - The scheduler to use. 0 for FCFS, 1 for SJF, 2 for SRTF.
+**Scheduler** - 0, 1, or 2 - The scheduler to use. 0 for FCFS, 1 for SJF, 2 for SRTF, 3 for HRRN.
 
 **Ready Queue Scenario** - 1 or 2 - The Ready Queue scenario to use. 1 for per-CPU Ready Queues, 2 for a single global Ready Queue. 
 
@@ -101,7 +101,7 @@ The simulator displays its results to the terminal. It displays markers when sta
 This project is currently *in-progress*. Current development is focusing on adding more scheduler types, adding more dynamic elements to the system, and setting up for a GUI.
 
 ### Planned Additions/Changes
-* Add more scheduler types (e.g. HRRN, Round Robin)
+* Add more scheduler types: Round Robin
 
 * Introduce a GUI for inputing the parameters of the simulator and viewing the output metrics. 
   * Qt is the current forerunner for which framework to use.

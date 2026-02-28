@@ -15,18 +15,17 @@ class ReadyQueueList {
     vector<ReadyQueue *> RQs;
   
   public:
-    ReadyQueueList(int = 1, int = 0);
+    ReadyQueueList(int, int = 1);
     ~ReadyQueueList();
 
     void setSchedulerType(int);
   
     int getNumRQs();
-    int getRQSize(int);
-    bool isRQEmpty(int);
+    int getRQSize(int = 0);
+    bool isRQEmpty(int = 0);
   
-    void insertProcessRQ(Process *, int);
-    Process* getNextProcessRQ(int);
-    Process* removeProcessRQ(int);
+    void insertProcessRQ(Process *, int = 0);
+    Process* dequeueProcessRQ(float, int = 0);
   };
 
 #endif // READYQUEUELIST_H

@@ -11,7 +11,7 @@ using namespace std;
 map<InputHandler::InputType, string> InputHandler::inputMessages = {
   {InputHandler::ARRIVAL_RATE, "Enter the average arrival rate (processes per second): "},
   {InputHandler::SERVICE_TIME, "Enter the average service time (seconds): "},
-  {InputHandler::SCHEDULER, "Pick the scheduler (0 for FCFS, 1 for SJF: "},
+  {InputHandler::SCHEDULER, "Pick the scheduler (0 for FCFS, 1 for SJF, 2 for SRTF, 3 for HRRN): "},
   {InputHandler::RQ_SETUP, "Pick the Ready Queue setup (1 for RQ per-CPU, 2 for single global RQ): "},
   {InputHandler::NUM_CPUS, "Enter the number of CPUs: "},
   {InputHandler::END_CONDITION, "Pick the end condition (0 for processes arrived, 1 for processes departed, 2 for time limit): "},
@@ -103,27 +103,27 @@ Type InputHandler::performInputLoop(InputType inputType) {
         }
         break;
       case SCHEDULER:
-        if (input == 0 || input == 1 || input == 2) {
+        if (0 <= input && input <= 3) {
           validInput = true;
         }
         break;
       case RQ_SETUP:
-        if (input == floor(input) && (input == 1 || input == 2)) {
+        if (input == 1 || input == 2) {
           validInput = true;
         }
         break;
       case NUM_CPUS:
-        if (input == floor(input) && input > 0) {
+        if (input > 0) {
           validInput = true;
         }
         break;
       case END_CONDITION:
-        if (input == floor(input) && (input == 0 || input == 1 || input == 2)) {
+        if (0 <= input && input <= 2) {
           validInput = true;
         }
         break;
       case N:
-        if (input == floor(input) && input > 0) {
+        if (input > 0) {
           validInput = true;
         }
         break;
