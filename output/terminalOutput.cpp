@@ -106,11 +106,12 @@ void TerminalOutput::printLiveUpdate(float clock, LiveUpdateType eventType, Proc
            << ") started running on CPU " << process->CPUindex << ". ";
       break;
     case ARRIVAL_PREEMPT_SRTF:
-      cout << "Process " << process->id << " arrived to CPU " << process->CPUindex << ". It's service time " 
-           << process->serviceTime << " was less than the time left for process " << otherProcess->id << " (" 
-           << otherProcess->timeLeft << ") so process " << otherProcess->id << " was preempted and added to Ready Queue " 
-           << otherProcess->RQindex << " (" << RQList->getRQSize(otherProcess->RQindex) << "). Process " 
-           << process->id << " started running on CPU " << process->CPUindex << ". ";
+      cout << "Process " << process->id << " arrived to CPU " << process->CPUindex << ". It's service time (" 
+           << process->serviceTime << ") was less than the time left for process " << otherProcess->id << " (" 
+           << otherProcess->timeLeft - (clock - otherProcess->lastRunTime) << ") so process " << otherProcess->id 
+           << " was preempted and added to Ready Queue " << otherProcess->RQindex << " (" 
+           << RQList->getRQSize(otherProcess->RQindex) << "). Process " << process->id 
+           << " started running on CPU " << process->CPUindex << ". ";
       break;
     case ARRIVAL_TO_RQ:
       cout << "Process " << process->id << " arrived. ";

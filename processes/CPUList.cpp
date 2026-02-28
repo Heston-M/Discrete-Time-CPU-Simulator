@@ -42,8 +42,9 @@ Process* CPUList::getProcessOnCPU(int cpuIndex = 0) {
   return CPUs[cpuIndex];
 }
 
-Process* CPUList::removeProcessFromCPU(int cpuIndex = 0) {
+Process* CPUList::removeProcessFromCPU(float clock, int cpuIndex = 0) {
   Process *p = CPUs[cpuIndex];
+  p->timeLeft -= clock - p->lastRunTime;
   CPUs[cpuIndex] = nullptr;
   return p;
 }
