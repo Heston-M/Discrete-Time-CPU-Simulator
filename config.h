@@ -16,7 +16,7 @@ const bool CHOOSE_NUM_CPUS = true;        // Prompt user to choose number of CPU
 const bool CHOOSE_RQ_SETUP = true;        // Prompt user to choose Ready Queue setup at runtime
 const bool CHOOSE_END_CONDITION = true;   // Prompt user to choose end condition at runtime
 
-const int DEFAULT_SCHEDULER = 0;         // Default scheduler if not choosing at runtime (0 = FCFS, 1 = SJF, 2 = SRTF)
+const int DEFAULT_SCHEDULER = 0;         // Default scheduler if not choosing at runtime (0 = FCFS, 1 = SJF, 2 = SRTF, 3 = HRRN)
 const int DEFAULT_NUM_CPUS = 1;           // Default number of CPUs if not choosing at runtime
 const int DEFAULT_RQ_SETUP = 2;           // Default Ready Queue setup if not choosing at runtime (1 = per-CPU RQs, 2 = single global RQ)
 

@@ -251,7 +251,7 @@ int main() {
 
   EndChecker endChecker;
 
-  if (arrivalLambda <= 0 || serviceTimeAvg <= 0 || !(schedulerType == 0 || schedulerType == 1 || schedulerType == 2) || numCPUs <= 0 || !(rqSetup == 1 || rqSetup == 2)) {
+  if (arrivalLambda <= 0 || serviceTimeAvg <= 0 || !(schedulerType < 0 && 3 < schedulerType) || numCPUs <= 0 || !(rqSetup == 1 || rqSetup == 2)) {
     throw runtime_error("Invalid user-input arguments.");
   }
 

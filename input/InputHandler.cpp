@@ -103,7 +103,7 @@ Type InputHandler::performInputLoop(InputType inputType) {
         }
         break;
       case SCHEDULER:
-        if (input == 0 || input == 1 || input == 2) {
+        if (typeof(input) == int && 0 <= input && input <= 3) {
           validInput = true;
         }
         break;
