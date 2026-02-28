@@ -310,7 +310,7 @@ int main() {
   Event *e = eventQHead;
   while (eventQHead) {
     eventQHead = eventQHead->next;
-    delete e->process;
+    if (e->type == ARRIVAL) delete e->process;
     delete e;
     e = eventQHead;
   }
