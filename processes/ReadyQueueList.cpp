@@ -13,7 +13,7 @@ struct ReadyQueueList::ReadyQueue {
   }
 };
 
-ReadyQueueList::ReadyQueueList(int numOfQueues, int schedulerType) {
+ReadyQueueList::ReadyQueueList(int schedulerType, int numOfQueues) {
   this->schedulerType = schedulerType;
   for (int i = 0; i < numOfQueues; i++) {
     RQs.push_back(new ReadyQueue());
@@ -42,16 +42,16 @@ int ReadyQueueList::getNumRQs() {
   return RQs.size();
 }
 
-int ReadyQueueList::getRQSize(int queueIndex = 0) {
+int ReadyQueueList::getRQSize(int queueIndex) {
   return RQs[queueIndex]->size;
 }
 
-bool ReadyQueueList::isRQEmpty(int queueIndex = 0) {
+bool ReadyQueueList::isRQEmpty(int queueIndex) {
   return RQs[queueIndex]->size == 0;
 }
 
 // Insert process into the target Ready Queue based on FCFS or SJF
-void ReadyQueueList::insertProcessRQ(Process *process, int queueIndex = 0) {
+void ReadyQueueList::insertProcessRQ(Process *process, int queueIndex) {
   process->RQindex = queueIndex;
   ReadyQueue *RQ = RQs[queueIndex];
 
@@ -82,11 +82,7 @@ void ReadyQueueList::insertProcessRQ(Process *process, int queueIndex = 0) {
   RQ->size++;
 }
 
-Process* ReadyQueueList::getNextProcessRQ(int queueIndex = 0) {
-  return RQs[queueIndex]->head;
-}
-
-Process* ReadyQueueList::removeProcessRQ(int queueIndex = 0) {
+Process* ReadyQueueList::dequeueProcessRQ(float clock, int queueIndex) {
   if (isRQEmpty(queueIndex)) {
       throw runtime_error("Error: Attempted to remove process from empty Ready Queue.");
   }
