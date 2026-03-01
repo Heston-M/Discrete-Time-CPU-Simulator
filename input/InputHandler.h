@@ -2,10 +2,14 @@
 #define INPUTHANDLER_H
 
 #include "../endChecker/EndCondition.h"
+#include <string>
+#include <map>
+
+using namespace std;
 
 class InputHandler {
 
-  private:
+  public:
     enum InputType {
       ARRIVAL_RATE,
       SERVICE_TIME,
@@ -18,18 +22,19 @@ class InputHandler {
     };
 
     template <typename Type>
+    static Type getInput(InputType);
+
+  private:
+    static map<InputType, string> inputMessages;
+    static map<InputType, bool> inputChoices;
+    static map<InputType, float> floatDefaults;
+    static map<InputType, int> intDefaults;
+
+    template <typename Type>
+    static Type getDefault(InputType);
+
+    template <typename Type>
     static Type performInputLoop(InputType);
-
-  public:
-    static float getArrivalLambda();
-    static float getServiceTimeAvg();
-    static int getSchedulerType();
-    static int getRQSetup();
-    static int getNumCPUs();
-
-    static EndCondition getEndCondition();
-    static int getN();
-    static float getTimeLimit();
 };
 
 #endif // INPUTHANDLER_H

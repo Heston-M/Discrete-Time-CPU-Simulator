@@ -2,13 +2,13 @@
 #include "../input/InputHandler.h"
 
 EndChecker::EndChecker() {
-  this->endCondition = InputHandler::getEndCondition();
+  this->endCondition = static_cast<EndCondition>(InputHandler::getInput<int>(InputHandler::END_CONDITION));
   if (endCondition == TIME_LIMIT) {
-    this->timeLimit = InputHandler::getTimeLimit();
+    this->timeLimit = InputHandler::getInput<float>(InputHandler::TIME_LIMIT);
     this->N = -1;
   }
   else {
-    this->N = InputHandler::getN();
+    this->N = InputHandler::getInput<int>(InputHandler::N);
     this->timeLimit = -1;
   }
   this->arrivals = 0;

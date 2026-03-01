@@ -186,7 +186,7 @@ void handleDeparture(Event *e, float clock) {
     eventType = Output::DEPARTURE_CPU_IDLE;
   }
   else {                                      // Target Ready Queue is not empty, move next process to target CPU
-    nextProcess = RQList->removeProcessRQ(RQindex);
+    nextProcess = RQList->dequeueProcessRQ(clock, RQindex);
     cpuList->assignProcessToCPU(clock, nextProcess, CPUindex);
     stats->sampleRQueue(clock, RQindex);
     scheduleEvent(DEPARTURE, clock + nextProcess->serviceTime, nextProcess);
@@ -218,7 +218,7 @@ void handlePreemption(Event *e, float clock) {
   findAndDeleteEvent(DEPARTURE, process);
   RQList->insertProcessRQ(process, RQindex);
 
-  Process *nextProcess = RQList->removeProcessRQ(RQindex);       // Move next process in RQ to CPU
+  Process *nextProcess = RQList->dequeueProcessRQ(clock, RQindex);      // Move next process in RQ to CPU
   cpuList->assignProcessToCPU(clock, nextProcess, CPUindex);
   scheduleEvent(DEPARTURE, clock + nextProcess->timeLeft, nextProcess);
 
@@ -243,11 +243,11 @@ int main() {
   int numCPUs;
   int rqSetup;
 
-  arrivalLambda = InputHandler::getArrivalLambda();
-  serviceTimeAvg = InputHandler::getServiceTimeAvg();
-  schedulerType = InputHandler::getSchedulerType();
-  rqSetup = InputHandler::getRQSetup();
-  numCPUs = InputHandler::getNumCPUs();
+  arrivalLambda = InputHandler::getInput<float>(InputHandler::ARRIVAL_RATE);
+  serviceTimeAvg = InputHandler::getInput<float>(InputHandler::SERVICE_TIME);
+  schedulerType = InputHandler::getInput<int>(InputHandler::SCHEDULER);
+  rqSetup = InputHandler::getInput<int>(InputHandler::RQ_SETUP);
+  numCPUs = InputHandler::getInput<int>(InputHandler::NUM_CPUS);
 
   EndChecker endChecker;
 
@@ -260,7 +260,7 @@ int main() {
   randGen = new RandomGenerator();
   timeGen = new TimeGenerator(arrivalLambda, serviceTimeAvg);
   cpuList = new CPUList(numCPUs);
-  RQList = new ReadyQueueList(numRQs, schedulerType);
+  RQList = new ReadyQueueList(schedulerType, numRQs);
   stats = new StatisticsUnit(arrivalLambda, cpuList, RQList);
 
   float clock = 0.0; // Current time tracker
