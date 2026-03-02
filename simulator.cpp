@@ -19,6 +19,7 @@
 #include "output/output.h"
 #include "output/terminalOutput.h"
 #include "processes/Process.h"
+#include "processes/ProcessFactory.h"
 #include "processes/ReadyQueueList.h"
 #include "processes/CPUList.h"
 #include "statistics/StatisticsUnit.h"
@@ -56,6 +57,7 @@ StatisticsUnit *stats = nullptr;
 
 CPUList *cpuList = nullptr;
 ReadyQueueList *RQList = nullptr;
+ProcessFactory *processFactory = nullptr;
 
 Output *out = nullptr;
 
@@ -116,7 +118,8 @@ bool findAndDeleteEvent(EventType type, Process *target) {
 // Assigns e's process to the CPU (if idle), or inserts it into the Ready Queue.
 void handleArrival(Event *e, float clock) {
   float nextArrivalTime = clock + timeGen->getInterArrivalTime();
-  scheduleEvent(ARRIVAL, nextArrivalTime, new Process(timeGen->getServiceTime(), nextArrivalTime)); // Next arrival
+  Process *nextProcess = processFactory->createProcess(timeGen->getServiceTime(), nextArrivalTime);
+  scheduleEvent(ARRIVAL, nextArrivalTime, nextProcess);
 
   int CPUindex = 0;
   int RQindex = 0;
@@ -124,6 +127,9 @@ void handleArrival(Event *e, float clock) {
     vector<int> idleCPUs = cpuList->getIdleCPUs();
     if (idleCPUs.size() > 0) {
       CPUindex = idleCPUs[randGen->getRandomIndex(idleCPUs.size())];  // Pick random idle CPU
+    }
+    else {
+      CPUindex = randGen->getRandomIndex(cpuList->getNumCPUs()); // Pick random CPU if no idle CPUs are available
     }
   }
   else {                            // Per-CPU Ready Queue setup
@@ -242,16 +248,23 @@ int main() {
   float serviceTimeAvg;
   int numCPUs;
   int rqSetup;
+  float affinityProbability;
 
   arrivalLambda = InputHandler::getInput<float>(InputHandler::ARRIVAL_RATE);
   serviceTimeAvg = InputHandler::getInput<float>(InputHandler::SERVICE_TIME);
   schedulerType = InputHandler::getInput<int>(InputHandler::SCHEDULER);
   rqSetup = InputHandler::getInput<int>(InputHandler::RQ_SETUP);
   numCPUs = InputHandler::getInput<int>(InputHandler::NUM_CPUS);
+  affinityProbability = InputHandler::getInput<float>(InputHandler::AFFINITY_PROBABILITY);
 
   EndChecker endChecker;
 
-  if (arrivalLambda <= 0 || serviceTimeAvg <= 0 || (schedulerType < 0 || 3 < schedulerType) || numCPUs <= 0 || !(rqSetup == 1 || rqSetup == 2)) {
+  if (arrivalLambda <= 0 
+    || serviceTimeAvg <= 0 
+    || (schedulerType < 0 || 3 < schedulerType) 
+    || numCPUs <= 0 
+    || !(rqSetup == 1 || rqSetup == 2) 
+    || (affinityProbability < 0.0 || 1.0 < affinityProbability)) {
     throw runtime_error("Invalid user-input arguments.");
   }
 
@@ -262,6 +275,7 @@ int main() {
   cpuList = new CPUList(numCPUs);
   RQList = new ReadyQueueList(schedulerType, numRQs);
   stats = new StatisticsUnit(arrivalLambda, cpuList, RQList);
+  processFactory = new ProcessFactory(affinityProbability, numCPUs, randGen);
 
   float clock = 0.0; // Current time tracker
 
@@ -343,6 +357,7 @@ int main() {
   delete stats;
   delete cpuList;
   delete RQList;
+  delete processFactory;
 
   Event *e = eventQHead;
   while (eventQHead) {

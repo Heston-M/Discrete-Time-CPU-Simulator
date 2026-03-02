@@ -5,8 +5,8 @@ endif
 
 OBJDIR := objectFiles
 
-simulator: $(OBJDIR) objectFiles/simulator.o objectFiles/RandomGenerator.o objectFiles/TimeGenerator.o objectFiles/Process.o objectFiles/ReadyQueueList.o objectFiles/CPUList.o objectFiles/StatisticsUnit.o objectFiles/InputHandler.o objectFiles/EndChecker.o objectFiles/terminalOutput.o
-	g++ -o simulator objectFiles/simulator.o objectFiles/RandomGenerator.o objectFiles/TimeGenerator.o objectFiles/Process.o objectFiles/ReadyQueueList.o objectFiles/CPUList.o objectFiles/StatisticsUnit.o objectFiles/InputHandler.o objectFiles/EndChecker.o objectFiles/terminalOutput.o
+simulator: $(OBJDIR) objectFiles/simulator.o objectFiles/RandomGenerator.o objectFiles/TimeGenerator.o objectFiles/Process.o objectFiles/ReadyQueueList.o objectFiles/CPUList.o objectFiles/StatisticsUnit.o objectFiles/InputHandler.o objectFiles/EndChecker.o objectFiles/terminalOutput.o objectFiles/ProcessFactory.o
+	g++ -o simulator objectFiles/simulator.o objectFiles/RandomGenerator.o objectFiles/TimeGenerator.o objectFiles/Process.o objectFiles/ReadyQueueList.o objectFiles/CPUList.o objectFiles/StatisticsUnit.o objectFiles/InputHandler.o objectFiles/EndChecker.o objectFiles/terminalOutput.o objectFiles/ProcessFactory.o
 
 $(OBJDIR):
 ifeq ($(OS),Windows_NT)
@@ -44,6 +44,9 @@ objectFiles/EndChecker.o: | $(OBJDIR) endChecker/endChecker.cpp endChecker/endCh
 
 objectFiles/terminalOutput.o: | $(OBJDIR) output/terminalOutput.cpp output/terminalOutput.h
 	g++ -c output/terminalOutput.cpp -o objectFiles/terminalOutput.o
+
+objectFiles/ProcessFactory.o: | $(OBJDIR) processes/ProcessFactory.cpp processes/ProcessFactory.h
+	g++ -c processes/ProcessFactory.cpp -o objectFiles/ProcessFactory.o
 
 clean:
 ifeq ($(OS),Windows_NT)
