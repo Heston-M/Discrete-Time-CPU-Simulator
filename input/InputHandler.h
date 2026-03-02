@@ -18,7 +18,8 @@ class InputHandler {
       NUM_CPUS,
       END_CONDITION,
       N,
-      TIME_LIMIT
+      TIME_LIMIT,
+      AFFINITY_PROBABILITY
     };
 
     template <typename Type>

@@ -11,6 +11,7 @@ Process::Process(float serviceT, float arrivalT) {
   departureTime = 0;
   CPUindex = -1;
   RQindex = -1;
+  affinity = -1;
   next = nullptr;
 
   nextID++;

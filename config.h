@@ -24,5 +24,8 @@ const EndCondition DEFAULT_END_CONDITION = PROCESSES_DEPARTED;  // Default end c
 const int DEFAULT_N = 10000;             // Default number of processes if not choosing at runtime
 const float DEFAULT_TIME_LIMIT = 100;     // Default time limit (in seconds) if not choosing at runtime
 
+const bool CHOOSE_AFFINITY_PROBABILITY = true; // If true, prompts user to input the probability that a process will have an affinity
+const float DEFAULT_AFFINITY_PROBABILITY = 0.0; // Probability that a process will have an affinity for a specific CPU
+
 #endif // CONFIG_H
 

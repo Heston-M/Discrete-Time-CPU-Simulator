@@ -16,7 +16,8 @@ map<InputHandler::InputType, string> InputHandler::inputMessages = {
   {InputHandler::NUM_CPUS, "Enter the number of CPUs: "},
   {InputHandler::END_CONDITION, "Pick the end condition (0 for processes arrived, 1 for processes departed, 2 for time limit): "},
   {InputHandler::N, "Enter the number of processes: "},
-  {InputHandler::TIME_LIMIT, "Enter the time limit (seconds): "}
+  {InputHandler::TIME_LIMIT, "Enter the time limit (seconds): "},
+  {InputHandler::AFFINITY_PROBABILITY, "Enter the probability that a process will have an affinity for a specific CPU (0.0 to 1.0): "}
 };
 
 map<InputHandler::InputType, bool> InputHandler::inputChoices = {
@@ -27,13 +28,15 @@ map<InputHandler::InputType, bool> InputHandler::inputChoices = {
   {InputHandler::NUM_CPUS, CHOOSE_NUM_CPUS},
   {InputHandler::END_CONDITION, CHOOSE_END_CONDITION},
   {InputHandler::N, CHOOSE_END_CONDITION},
-  {InputHandler::TIME_LIMIT, CHOOSE_END_CONDITION}
+  {InputHandler::TIME_LIMIT, CHOOSE_END_CONDITION},
+  {InputHandler::AFFINITY_PROBABILITY, CHOOSE_AFFINITY_PROBABILITY}
 };
 
 map<InputHandler::InputType, float> InputHandler::floatDefaults = {
   {InputHandler::ARRIVAL_RATE, 1.0},
   {InputHandler::SERVICE_TIME, 1.0},
-  {InputHandler::TIME_LIMIT, DEFAULT_TIME_LIMIT}
+  {InputHandler::TIME_LIMIT, DEFAULT_TIME_LIMIT},
+  {InputHandler::AFFINITY_PROBABILITY, DEFAULT_AFFINITY_PROBABILITY}
 };
 
 map<InputHandler::InputType, int> InputHandler::intDefaults = {
@@ -129,6 +132,11 @@ Type InputHandler::performInputLoop(InputType inputType) {
         break;
       case TIME_LIMIT:
         if (input > 0) {
+          validInput = true;
+        }
+        break;
+      case AFFINITY_PROBABILITY:
+        if (0 <= input && input <= 1) {
           validInput = true;
         }
         break;
